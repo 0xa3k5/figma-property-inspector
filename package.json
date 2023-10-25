@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@create-figma-plugin/ui": "^3.0.2",
+    "@create-figma-plugin/utilities": "^3.0.2",
+    "chart.js": "^4.4.0",
+    "preact": ">=10",
+    "react-chartjs-2": "^5.2.0"
+  },
+  "devDependencies": {
+    "@create-figma-plugin/build": "^3.0.2",
+    "@create-figma-plugin/tsconfig": "^3.0.2",
+    "@figma/plugin-typings": "^1.79.0",
+    "bun-types": "latest",
+    "typescript": ">=4"
+  },
+  "scripts": {
+    "build": "build-figma-plugin --typecheck --minify",
+    "watch": "build-figma-plugin --typecheck --watch"
+  },
+  "figma-plugin": {
+    "editorType": [
+      "figma"
+    ],
+    "id": "property-inspector",
+    "name": "Property Inspector",
+    "main": "src/main.ts",
+    "ui": "src/ui.tsx"
+  },
+  "name": "property-inspector",
+  "module": "index.ts",
+  "type": "module"
+}
