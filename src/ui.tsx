@@ -1,3 +1,4 @@
+import "!./styles.css";
 import {
   Button,
   Container,
@@ -12,16 +13,16 @@ import { JSX, h } from "preact";
 import { useCallback, useEffect, useState } from "preact/hooks";
 
 import {
-  AnalysePageHandler,
-  AnalyseSelectionHandler,
+  InspectPageHandler,
+  InspectSelectionHandler,
   ResizeWindowHandler,
   UpdatePageDataHandler,
   SizingValues,
+  TProperties,
 } from "./types";
 import TabContent from "./components/TabContent";
 
 function Plugin() {
-  const [selectedNode, setSelectedNode] = useState(null);
   const [pageData, setPageData] = useState<SizingValues | null>(null);
   const [currentTab, setCurrentTab] = useState<"Paddings" | "Gaps">("Paddings");
 
@@ -43,23 +44,33 @@ function Plugin() {
     on<UpdatePageDataHandler>("UPDATE_PAGE_DATA", handleUpdatePageData);
   }, []);
 
-  const handleAnalysePageClick = useCallback(function () {
-    emit<AnalysePageHandler>("ANALYSE_PAGE");
+  const handleInspectPageClick = useCallback(function () {
+    emit<InspectPageHandler>("INSPECT_PAGE");
   }, []);
 
-  const handleAnalyseSelectionClick = useCallback(function () {
-    emit<AnalyseSelectionHandler>("ANALYSE_SELECTION");
+  const handleInspectSelectionClick = useCallback(function () {
+    emit<InspectSelectionHandler>("INSPECT_SELECTION");
   }, []);
 
   const { paddings, gaps } = pageData || { paddings: null, gaps: null };
 
   const tabOptions: Array<TabsOption> = [
     {
-      children: <TabContent data={paddings} tabTitle={currentTab} />,
+      children: (
+        <TabContent
+          data={paddings}
+          tabTitle={currentTab.toLowerCase() as TProperties}
+        />
+      ),
       value: "Paddings",
     },
     {
-      children: <TabContent data={gaps} tabTitle={currentTab} />,
+      children: (
+        <TabContent
+          data={gaps}
+          tabTitle={currentTab.toLowerCase() as TProperties}
+        />
+      ),
       value: "Gaps",
     },
   ];
@@ -68,9 +79,6 @@ function Plugin() {
     const newValue = event.currentTarget.value as typeof currentTab;
     setCurrentTab(newValue);
   };
-
-  console.log(paddings);
-  console.log(gaps);
 
   return (
     <Container space="medium">
@@ -94,11 +102,11 @@ function Plugin() {
             backgroundColor: "var(--figma-color-bg)",
           }}
         >
-          <Button secondary fullWidth onClick={handleAnalyseSelectionClick}>
-            Analyse Selecion
+          <Button secondary fullWidth onClick={handleInspectSelectionClick}>
+            Inspect Selecion
           </Button>
-          <Button fullWidth onClick={handleAnalysePageClick}>
-            Analyse Full Page
+          <Button fullWidth onClick={handleInspectPageClick}>
+            Inspect Full Page
           </Button>
         </div>
       </Stack>

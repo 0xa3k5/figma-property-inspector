@@ -7,17 +7,18 @@ import {
 } from "@create-figma-plugin/ui";
 import { JSX, h } from "preact";
 import BarChart from "./BarChart";
-import { SizingValue } from "../types";
+import { TProperties, SizingValue } from "../types";
+import PropertyTile from "./PropertyTile";
 
 interface Props {
   className?: string;
-  tabTitle: string;
+  tabTitle: TProperties;
   data: SizingValue | null;
 }
 
 export default function TabContent({ tabTitle, data }: Props): JSX.Element {
   if (!data) {
-    return <Text>null</Text>;
+    return <Text>null</Text>; // todo: empty state
   }
 
   return (
@@ -28,7 +29,7 @@ export default function TabContent({ tabTitle, data }: Props): JSX.Element {
       }}
     >
       <VerticalSpace space="small" />
-      <h2>{tabTitle}</h2>
+      <h2 className={"uppercase text-purple-500"}>{tabTitle}</h2>
 
       <VerticalSpace space="small" />
       <BarChart rawData={data} title={tabTitle} />
@@ -36,36 +37,38 @@ export default function TabContent({ tabTitle, data }: Props): JSX.Element {
       <Stack space="medium">
         <Stack space="small">
           <h3>Most used {tabTitle} (top5)</h3>
-          <Columns space="medium">
+          <div className="flex justify-between">
             {Object.entries(data)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 5)
               .map((v, i) => {
                 return (
-                  <Stack space="medium" key={i}>
-                    <h3 style={{ fontSize: 20 }}>{v[0]} px</h3>
-                    <Text>{v[1]} times</Text>
-                  </Stack>
+                  <PropertyTile
+                    type={tabTitle as TProperties}
+                    key={i}
+                    value={v}
+                  />
                 );
               })}
-          </Columns>
+          </div>
         </Stack>
         <VerticalSpace space="small" />
         <Stack space="medium">
           <h3>Least used {tabTitle} (top5)</h3>
-          <Columns space="medium">
+          <div className="flex justify-between">
             {Object.entries(data)
               .sort((a, b) => a[1] - b[1])
               .slice(0, 5)
               .map((v, i) => {
                 return (
-                  <Stack space="medium" key={i}>
-                    <h3 style={{ fontSize: 20 }}>{v[0]} px</h3>
-                    <Text>{v[1]} times</Text>
-                  </Stack>
+                  <PropertyTile
+                    type={tabTitle as TProperties}
+                    key={i}
+                    value={v}
+                  />
                 );
               })}
-          </Columns>
+          </div>
         </Stack>
       </Stack>
     </Container>

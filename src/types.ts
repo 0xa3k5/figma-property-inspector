@@ -10,14 +10,21 @@ export interface UpdatePageDataHandler extends EventHandler {
   handler: (data: any) => void
 }
 
-export interface AnalysePageHandler extends EventHandler {
-  name: 'ANALYSE_PAGE'
+export interface InspectPageHandler extends EventHandler {
+  name: 'INSPECT_PAGE'
   handler: () => void
 }
-export interface AnalyseSelectionHandler extends EventHandler {
-  name: 'ANALYSE_SELECTION'
+export interface InspectSelectionHandler extends EventHandler {
+  name: 'INSPECT_SELECTION'
   handler: () => void
 }
+
+export interface ValueSelectHandler extends EventHandler {
+  name: 'VALUE_SELECT'
+  handler: (data: { value: string; type: "paddings" | "gaps" }) => void;
+}
+
+export type TProperties = "paddings" | "gaps"
 
 export type GapCounts = Record<string, number>
 
