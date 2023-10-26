@@ -9,8 +9,7 @@ const countPaddings = (node: BaseNode): SizingValues => {
   const gapValues: SizingValue = {};
 
   const mapSizeValues = (node: BaseNode) => {
-
-    if ('layoutMode' in node && node.layoutMode !== 'NONE') {
+    if ('layoutMode' in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
       const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing } = node;
       [paddingTop, paddingBottom, paddingLeft, paddingRight].forEach(padding => {
         if (padding !== undefined && padding > 0) {
@@ -95,7 +94,7 @@ export default function () {
     figma.currentPage.selection = nodesArray;
     figma.viewport.scrollAndZoomIntoView(nodesArray);
   });
-  
+
   showUI({
     height: 512,
     width: 512
