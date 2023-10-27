@@ -44,7 +44,7 @@ export default function () {
     }
   )
 
-  once<InspectPageHandler>('INSPECT_PAGE', function () {
+  on<InspectPageHandler>('INSPECT_PAGE', function () {
     const frameData = figma.currentPage.children.filter(node => node.type === 'FRAME' || node.type === 'SECTION');
 
     const allSizingValues = frameData.map(countPaddings).reduce<SizingValues>((acc, counts) => {
