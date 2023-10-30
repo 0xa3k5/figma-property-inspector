@@ -1,10 +1,5 @@
 import { h } from "preact";
-import {
-  NodeReference,
-  PropertyType,
-  PropertyValues,
-  ValueSelectHandler,
-} from "../types";
+import { PropertyType, PropertyValues, ValueSelectHandler } from "../types";
 import {
   PaddingTopIcon,
   PaddingBottomIcon,
@@ -18,6 +13,7 @@ interface Props {
   propertyKey: string;
   totalCount: number;
   value: PropertyValues;
+  visibleProperties: { [k: string]: boolean };
 }
 
 const getIcon = (type: PropertyType, direction: string) => {
@@ -51,6 +47,7 @@ export default function ValueDisplay({
   propertyKey,
   totalCount,
   value,
+  visibleProperties,
 }: Props): JSX.Element {
   const handleValueSelect = (section: PropertyType, direction: string) => {
     emit<ValueSelectHandler>("VALUE_SELECT", {
@@ -61,39 +58,38 @@ export default function ValueDisplay({
   };
   const renderValueSection = (section: PropertyType) => {
     const sectionData = value[section];
-
-    return (
-      Object.keys(sectionData).length > 0 && (
-        <div className="h-full">
-          <h6 className="pl-4 text-xs font-normal">
-            {section.charAt(0).toUpperCase() + section.slice(1)}
-          </h6>
-          <div className="flex flex-col font-mono">
-            {Object.entries(sectionData).map(([direction, data]) => (
-              <div
-                className="flex justify-between py-2 items-center"
-                style={{
-                  borderBottom: "1px solid var(--figma-color-border)",
-                }}
-              >
-                <div className="flex text-sm gap-2 items-center pl-4">
-                  {getIcon(section, direction.toLowerCase())}
-                  {`${section}-${direction.toLowerCase()}`}
-                  <span className="opacity-60 text-xs"> • ({data.count})</span>
-                </div>
-                <button
-                  onClick={() => handleValueSelect(section, direction)}
-                  className="p-2 flex justify-center"
-                >
-                  <SelectIcon />
-                </button>
+    return Object.keys(sectionData).length > 0 && visibleProperties[section] ? (
+      <div className="h-full">
+        <h6 className="pl-4 text-xs font-normal">
+          {section.charAt(0).toUpperCase() + section.slice(1)}
+        </h6>
+        <div className="flex flex-col font-mono">
+          {Object.entries(sectionData).map(([direction, data]) => (
+            <div
+              className="flex justify-between py-2 items-center"
+              style={{
+                borderBottom: "1px solid var(--figma-color-border)",
+              }}
+            >
+              <div className="flex text-sm gap-2 items-center pl-4">
+                {getIcon(section, direction.toLowerCase())}
+                {`${section}-${direction.toLowerCase()}`}
+                <span className="opacity-60 text-xs"> • ({data.count})</span>
               </div>
-            ))}
-          </div>
+              <button
+                onClick={() => handleValueSelect(section, direction)}
+                className="p-2 flex justify-center"
+              >
+                <SelectIcon />
+              </button>
+            </div>
+          ))}
         </div>
-      )
-    );
+      </div>
+    ) : null;
   };
+
+  const propertyTypes: PropertyType[] = ["padding", "gap", "stroke"];
 
   return (
     <div
@@ -109,10 +105,8 @@ export default function ValueDisplay({
           <span className="opacity-60 text-xs"> • ({totalCount})</span>
         </div>
       </div>
-      <div className="flex col-span-3 flex-col gap-4 py-2">
-        {renderValueSection("padding")}
-        {renderValueSection("gap")}
-        {renderValueSection("stroke")}
+      <div className="flex col-span-3 flex-col gap-4 pt-2">
+        {propertyTypes.map((type) => renderValueSection(type))}
       </div>
     </div>
   );

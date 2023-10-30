@@ -1,161 +1,136 @@
-import { emit, on, showUI } from '@create-figma-plugin/utilities';
+import { emit, on, showUI } from "@create-figma-plugin/utilities";
 import {
   InspectPageHandler,
   ResizeWindowHandler,
   PropertyTypeValues,
   UpdatePageDataHandler,
-  ValueSelectHandler,
   InspectSelectionHandler,
   PropertyType,
-} from './types';
+  ValueSelectHandler,
+} from "./types";
 
-const findProperties = (node: BaseNode, sizingData: PropertyTypeValues = {}): PropertyTypeValues => {
-  const processValue = (
-    value: number | undefined,
-    direction: string,
-    type: PropertyType
-  ) => {
-    if (value !== undefined && value > 0) {
-      const key = value.toString();
-      if (!sizingData[key]) {
-        sizingData[key] = { padding: {}, gap: {}, stroke: {} };
-      }
-      if (!sizingData[key][type][direction]) {
-        sizingData[key][type][direction] = { count: 0, nodes: [] };
-      }
-      sizingData[key][type][direction].count += 1;
-      sizingData[key][type][direction].nodes.push(node);
+const processPropertyValue = (
+  node: BaseNode,
+  propValue: number | undefined,
+  direction: string,
+  type: PropertyType,
+  sizingData: PropertyTypeValues
+) => {
+  if (propValue !== undefined && propValue > 0) {
+    const key = propValue.toString();
+    if (!sizingData[key]) {
+      sizingData[key] = { padding: {}, gap: {}, stroke: {} };
     }
-  };
-
-  if ('layoutMode' in node && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
-    const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing, strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight } = node;
-
-    processValue(strokeLeftWeight, 'left', 'stroke');
-    processValue(strokeTopWeight, 'top', 'stroke');
-    processValue(strokeRightWeight, 'right', 'stroke');
-    processValue(strokeBottomWeight, 'bottom', 'stroke');
-    
-    processValue(paddingLeft, 'left', 'padding');
-    processValue(paddingTop, 'top', 'padding');
-    processValue(paddingRight, 'right', 'padding');
-    processValue(paddingBottom, 'bottom', 'padding');
-    processValue(itemSpacing, node.layoutMode, 'gap');
+    if (!sizingData[key][type][direction]) {
+      sizingData[key][type][direction] = { count: 0, nodes: [] };
+    }
+    sizingData[key][type][direction].count += 1;
+    sizingData[key][type][direction].nodes.push(node);
   }
+};
 
-  if ('children' in node) {
-    node.children.forEach((childNode) => {
-     findProperties(childNode, sizingData)
-    });
+const processValues = (node: BaseNode, sizingData: PropertyTypeValues) => {
+  if ("layoutMode" in node && node.primaryAxisAlignItems !== "SPACE_BETWEEN") {
+    const {
+      paddingTop,
+      paddingBottom,
+      paddingLeft,
+      paddingRight,
+      itemSpacing,
+      strokeLeftWeight,
+      strokeRightWeight,
+      strokeTopWeight,
+      strokeBottomWeight,
+    } = node;
+
+    processPropertyValue(node, paddingLeft, "left", "padding", sizingData);
+    processPropertyValue(node, paddingTop, "top", "padding", sizingData);
+    processPropertyValue(node, paddingRight, "right", "padding", sizingData);
+    processPropertyValue(node, paddingBottom, "bottom", "padding", sizingData);
+    processPropertyValue(node, itemSpacing, node.layoutMode, "gap", sizingData);
+
+    processPropertyValue(node, strokeLeftWeight, "left", "stroke", sizingData);
+    processPropertyValue(node, strokeTopWeight, "top", "stroke", sizingData);
+    processPropertyValue(node, strokeRightWeight, "right", "stroke", sizingData);
+    processPropertyValue(node, strokeBottomWeight, "bottom", "stroke", sizingData);
   }
+};
 
-  return sizingData;
+const updateSizingData = (
+  nodeSizingData: PropertyTypeValues,
+  sizingData: PropertyTypeValues
+) => {
+  Object.keys(nodeSizingData).forEach((key) => {
+    if (!sizingData[key]) {
+      sizingData[key] = { padding: {}, gap: {}, stroke: {} };
+    }
+
+    const updatePropertyData = (type: PropertyType) => {
+      const propertyData = nodeSizingData[key][type];
+      Object.keys(propertyData).forEach((direction) => {
+        if (!sizingData[key][type][direction]) {
+          sizingData[key][type][direction] = { count: 0, nodes: [] };
+        }
+        sizingData[key][type][direction].count += propertyData[direction].count;
+        sizingData[key][type][direction].nodes.push(
+          ...propertyData[direction].nodes
+        );
+      });
+    };
+
+    updatePropertyData("padding");
+    updatePropertyData("gap");
+    updatePropertyData("stroke");
+  });
 };
 
 
 export default function (): void {
-  on<ResizeWindowHandler>('RESIZE_WINDOW', function (windowSize: { width: number; height: number }): void {
-    const { width, height } = windowSize;
-    figma.ui.resize(width, height);
-  });
-  
+  on<ResizeWindowHandler>(
+    "RESIZE_WINDOW",
+    function (windowSize: { width: number; height: number }): void {
+      const { width, height } = windowSize;
+      figma.ui.resize(width, height);
+    }
+  );
+
   let sizingData: PropertyTypeValues = {};
 
-  on<InspectPageHandler>('INSPECT_PAGE', function (): void {
-    sizingData = {}
-    const nodeData = figma.currentPage.children
+  on<InspectPageHandler>("INSPECT_PAGE", function (): void {
+    sizingData = {};
+    const nodeData = figma.currentPage.children;
 
     nodeData.forEach((node) => {
-      const nodeSizingData = findProperties(node);
-
-      Object.keys(nodeSizingData).forEach((key) => {
-        
-        if (!sizingData[key]) {
-          sizingData[key] = { padding: {}, gap: {}, stroke: {} };
-        }
-
-        const paddingData = nodeSizingData[key].padding;
-        Object.keys(paddingData).forEach((direction) => {
-          if (!sizingData[key].padding[direction]) {
-            sizingData[key].padding[direction] = { count: 0, nodes: [] };
-          }
-          sizingData[key].padding[direction].count += paddingData[direction].count;
-          sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
-        });
-
-        const gapData = nodeSizingData[key].gap;
-        Object.keys(gapData).forEach((direction) => {
-          if (!sizingData[key].gap[direction]) {
-            sizingData[key].gap[direction] = { count: 0, nodes: [] };
-          }
-          sizingData[key].gap[direction].count += gapData[direction].count;
-          sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
-        });
-
-        const strokeData = nodeSizingData[key].stroke;
-        Object.keys(strokeData).forEach((direction) => {
-          if (!sizingData[key].stroke[direction]) {
-            sizingData[key].stroke[direction] = { count: 0, nodes: [] };
-          }
-          sizingData[key].stroke[direction].count += strokeData[direction].count;
-          sizingData[key].stroke[direction].nodes.push(...strokeData[direction].nodes);
-        });
-      });
+      const nodeSizingData: PropertyTypeValues = {};
+      processValues(node, sizingData);
+      updateSizingData(nodeSizingData, sizingData);
     });
 
-    figma.notify(`Inpected: ${figma.currentPage.name}`)
+    figma.notify(`Inspected: ${figma.currentPage.name}`);
 
-    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', sizingData);
+    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", sizingData);
   });
 
-  on<InspectSelectionHandler>('INSPECT_SELECTION', function (): void {
-    sizingData = {}
-    const selectedNodes = figma.currentPage.selection
+  on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
+    sizingData = {};
+    const selectedNodes = figma.currentPage.selection;
 
     if (selectedNodes.length === 0) {
-      figma.notify('select a node to start')
+      figma.notify("Select a node to start");
     } else {
       selectedNodes.forEach((node) => {
-        const nodeSizingData = findProperties(node);
-  
-        Object.keys(nodeSizingData).forEach((key) => {
-          if (!sizingData[key]) {
-            sizingData[key] = { padding: {}, gap: {}, stroke: {} };
-          }
-
-          const paddingData = nodeSizingData[key].padding;
-          Object.keys(paddingData).forEach((direction) => {
-            if (!sizingData[key].padding[direction]) {
-              sizingData[key].padding[direction] = { count: 0, nodes: [] };
-            }
-            sizingData[key].padding[direction].count += paddingData[direction].count;
-            sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
-          });
-
-          const gapData = nodeSizingData[key].gap;
-          Object.keys(gapData).forEach((direction) => {
-            if (!sizingData[key].gap[direction]) {
-              sizingData[key].gap[direction] = { count: 0, nodes: [] };
-            }
-            sizingData[key].gap[direction].count += gapData[direction].count;
-            sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
-          });
-
-          const strokeData = nodeSizingData[key].stroke;
-          Object.keys(strokeData).forEach((direction) => {
-            if (!sizingData[key].stroke[direction]) {
-              sizingData[key].stroke[direction] = { count: 0, nodes: [] };
-            }
-            sizingData[key].stroke[direction].count += strokeData[direction].count;
-            sizingData[key].stroke[direction].nodes.push(...strokeData[direction].nodes);
-          });
-        });
+        const nodeSizingData: PropertyTypeValues = {};
+        processValues(node, sizingData);
+        updateSizingData(nodeSizingData, sizingData);
       });
-      figma.notify(`Inspected: ${selectedNodes.length} ${selectedNodes.length > 0 ? 'nodes' : 'node'}`)
+      figma.notify(
+        `Inspected: ${selectedNodes.length} ${
+          selectedNodes.length > 0 ? "nodes" : "node"
+        }`
+      );
     }
 
-    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', sizingData);
-    
+    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", sizingData);
   });
 
   on<ValueSelectHandler>('VALUE_SELECT', (data): void => {
