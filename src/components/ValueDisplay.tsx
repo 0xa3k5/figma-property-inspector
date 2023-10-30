@@ -61,6 +61,7 @@ export default function ValueDisplay({
   };
   const renderValueSection = (section: PropertyType) => {
     const sectionData = value[section];
+
     return (
       Object.keys(sectionData).length > 0 && (
         <div className="h-full">
@@ -111,6 +112,7 @@ export default function ValueDisplay({
       <div className="flex col-span-3 flex-col gap-4 py-2">
         {renderValueSection("padding")}
         {renderValueSection("gap")}
+        {renderValueSection("stroke")}
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ const findProperties = (node: BaseNode, sizingData: PropertyTypeValues = {}): Pr
     if (value !== undefined && value > 0) {
       const key = value.toString();
       if (!sizingData[key]) {
-        sizingData[key] = { padding: {}, gap: {} };
+        sizingData[key] = { padding: {}, gap: {}, stroke: {} };
       }
       if (!sizingData[key][type][direction]) {
         sizingData[key][type][direction] = { count: 0, nodes: [] };
@@ -28,9 +28,14 @@ const findProperties = (node: BaseNode, sizingData: PropertyTypeValues = {}): Pr
     }
   };
 
-  if ('layoutMode' in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
-    const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing } = node;
+  if ('layoutMode' in node && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
+    const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing, strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight } = node;
 
+    processValue(strokeLeftWeight, 'left', 'stroke');
+    processValue(strokeTopWeight, 'top', 'stroke');
+    processValue(strokeRightWeight, 'right', 'stroke');
+    processValue(strokeBottomWeight, 'bottom', 'stroke');
+    
     processValue(paddingLeft, 'left', 'padding');
     processValue(paddingTop, 'top', 'padding');
     processValue(paddingRight, 'right', 'padding');
@@ -66,11 +71,10 @@ export default function (): void {
       Object.keys(nodeSizingData).forEach((key) => {
         
         if (!sizingData[key]) {
-          sizingData[key] = { padding: {}, gap: {} };
+          sizingData[key] = { padding: {}, gap: {}, stroke: {} };
         }
 
         const paddingData = nodeSizingData[key].padding;
-
         Object.keys(paddingData).forEach((direction) => {
           if (!sizingData[key].padding[direction]) {
             sizingData[key].padding[direction] = { count: 0, nodes: [] };
@@ -78,14 +82,23 @@ export default function (): void {
           sizingData[key].padding[direction].count += paddingData[direction].count;
           sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
         });
-        const gapData = nodeSizingData[key].gap;
 
+        const gapData = nodeSizingData[key].gap;
         Object.keys(gapData).forEach((direction) => {
           if (!sizingData[key].gap[direction]) {
             sizingData[key].gap[direction] = { count: 0, nodes: [] };
           }
           sizingData[key].gap[direction].count += gapData[direction].count;
           sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
+        });
+
+        const strokeData = nodeSizingData[key].stroke;
+        Object.keys(strokeData).forEach((direction) => {
+          if (!sizingData[key].stroke[direction]) {
+            sizingData[key].stroke[direction] = { count: 0, nodes: [] };
+          }
+          sizingData[key].stroke[direction].count += strokeData[direction].count;
+          sizingData[key].stroke[direction].nodes.push(...strokeData[direction].nodes);
         });
       });
     });
@@ -107,11 +120,10 @@ export default function (): void {
   
         Object.keys(nodeSizingData).forEach((key) => {
           if (!sizingData[key]) {
-            sizingData[key] = { padding: {}, gap: {} };
+            sizingData[key] = { padding: {}, gap: {}, stroke: {} };
           }
 
           const paddingData = nodeSizingData[key].padding;
-  
           Object.keys(paddingData).forEach((direction) => {
             if (!sizingData[key].padding[direction]) {
               sizingData[key].padding[direction] = { count: 0, nodes: [] };
@@ -119,14 +131,23 @@ export default function (): void {
             sizingData[key].padding[direction].count += paddingData[direction].count;
             sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
           });
+
           const gapData = nodeSizingData[key].gap;
-  
           Object.keys(gapData).forEach((direction) => {
             if (!sizingData[key].gap[direction]) {
               sizingData[key].gap[direction] = { count: 0, nodes: [] };
             }
             sizingData[key].gap[direction].count += gapData[direction].count;
             sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
+          });
+
+          const strokeData = nodeSizingData[key].stroke;
+          Object.keys(strokeData).forEach((direction) => {
+            if (!sizingData[key].stroke[direction]) {
+              sizingData[key].stroke[direction] = { count: 0, nodes: [] };
+            }
+            sizingData[key].stroke[direction].count += strokeData[direction].count;
+            sizingData[key].stroke[direction].nodes.push(...strokeData[direction].nodes);
           });
         });
       });

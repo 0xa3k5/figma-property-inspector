@@ -1,5 +1,11 @@
 import "!./output.css";
-import { Container, render, useWindowResize } from "@create-figma-plugin/ui";
+import {
+  Toggle,
+  Container,
+  render,
+  useWindowResize,
+  Text,
+} from "@create-figma-plugin/ui";
 import { emit, on } from "@create-figma-plugin/utilities";
 import { h } from "preact";
 import { useEffect, useState } from "preact/hooks";
@@ -17,6 +23,10 @@ function Plugin() {
   const [keyUsageCounts, setKeyUsageCounts] = useState<{
     [key: string]: number;
   }>({});
+
+  const [showPaddings, setShowPaddings] = useState(true);
+  const [showGaps, setShowGaps] = useState(true);
+  const [showStrokes, setShowStrokes] = useState(true);
 
   function onWindowResize(windowSize: { width: number; height: number }) {
     emit<ResizeWindowHandler>("RESIZE_WINDOW", windowSize);
@@ -74,14 +84,51 @@ function Plugin() {
 
   return (
     <Container space="medium">
+      <div
+        className="flex gap-4 py-4 items-center w-full"
+        style={{ borderBottom: "1px solid var(--figma-color-border)" }}
+      >
+        <Toggle
+          value={showPaddings}
+          onChange={() => setShowPaddings(!showPaddings)}
+        >
+          <Text>Padding</Text>
+        </Toggle>
+        <Toggle value={showGaps} onChange={() => setShowGaps(!showGaps)}>
+          <Text>Gap</Text>
+        </Toggle>
+        <Toggle
+          value={showStrokes}
+          onChange={() => setShowStrokes(!showStrokes)}
+        >
+          <Text>Strokes</Text>
+        </Toggle>
+      </div>
       <div className="flex flex-col mb-11">
         {Object.entries(pageData).map(([key, value]) => (
-          <ValueDisplay
-            key={key}
-            propertyKey={key}
-            totalCount={keyUsageCounts[key]}
-            value={value}
-          />
+          <div key={key}>
+            {showPaddings && Object.keys(value.padding).length > 0 && (
+              <ValueDisplay
+                propertyKey={key}
+                totalCount={keyUsageCounts[key]}
+                value={value}
+              />
+            )}
+            {showGaps && Object.keys(value.gap).length > 0 && (
+              <ValueDisplay
+                propertyKey={key}
+                totalCount={keyUsageCounts[key]}
+                value={value}
+              />
+            )}
+            {showStrokes && Object.keys(value.stroke).length > 0 && (
+              <ValueDisplay
+                propertyKey={key}
+                totalCount={keyUsageCounts[key]}
+                value={value}
+              />
+            )}
+          </div>
         ))}
       </div>
       <Footer />
