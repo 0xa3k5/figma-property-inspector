@@ -19,8 +19,8 @@
   },
   "scripts": {
     "build": "build-figma-plugin --typecheck --minify",
-    "watch": "build-figma-plugin --typecheck --watch",
-    "watch:css": "tailwindcss -i ./src/input.css -o ./src/styles.css --watch"
+    "watch:css": "tailwindcss -i ./src/styles.css -o ./src/output.css --watch",
+    "watch": "build-figma-plugin --typecheck --watch && run watch:css"
   },
   "figma-plugin": {
     "editorType": [

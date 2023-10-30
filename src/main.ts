@@ -1,102 +1,159 @@
-import { emit, on, once, showUI } from '@create-figma-plugin/utilities'
-import { SizingValues, InspectPageHandler, ResizeWindowHandler, UpdatePageDataHandler, SizingValue, InspectSelectionHandler, ValueSelectHandler } from './types'
+import { emit, on, showUI } from '@create-figma-plugin/utilities';
+import {
+  InspectPageHandler,
+  ResizeWindowHandler,
+  PropertyTypeValues,
+  UpdatePageDataHandler,
+  ValueSelectHandler,
+  InspectSelectionHandler,
+  PropertyType,
+} from './types';
 
-let paddingNodeReferences: Record<string, Array<SceneNode>> = {};
-let gapNodeReferences: Record<string, Array<SceneNode>> = {};
-
-const countPaddings = (node: BaseNode): SizingValues => {
-  const paddingValues: SizingValue = {};
-  const gapValues: SizingValue = {};
-
-  const mapSizeValues = (node: BaseNode) => {
-    if ('layoutMode' in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
-      const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing } = node;
-      [paddingTop, paddingBottom, paddingLeft, paddingRight].forEach(padding => {
-        if (padding !== undefined && padding > 0) {
-          const key = padding.toString();
-          paddingValues[key] = (paddingValues[key] || 0) + 1;
-          paddingNodeReferences[key] = paddingNodeReferences[key] || [];
-          paddingNodeReferences[key].push(node);
-        }
-      });
-      if (itemSpacing !== undefined && itemSpacing > 0) {
-        const key = itemSpacing.toString();
-        gapValues[key] = (gapValues[key] || 0) + 1;
-        gapNodeReferences[key] = gapNodeReferences[key] || [];
-        gapNodeReferences[key].push(node);
+const findProperties = (node: BaseNode, sizingData: PropertyTypeValues = {}): PropertyTypeValues => {
+  const processValue = (
+    value: number | undefined,
+    direction: string,
+    type: PropertyType
+  ) => {
+    if (value !== undefined && value > 0) {
+      const key = value.toString();
+      if (!sizingData[key]) {
+        sizingData[key] = { padding: {}, gap: {} };
       }
-    }
-    if ('children' in node) {
-      node.children.forEach(mapSizeValues);
+      if (!sizingData[key][type][direction]) {
+        sizingData[key][type][direction] = { count: 0, nodes: [] };
+      }
+      sizingData[key][type][direction].count += 1;
+      sizingData[key][type][direction].nodes.push(node);
     }
   };
 
-  mapSizeValues(node);
-  return { paddings: paddingValues, gaps: gapValues };
-}
+  if ('layoutMode' in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== 'SPACE_BETWEEN') {
+    const { paddingTop, paddingBottom, paddingLeft, paddingRight, itemSpacing } = node;
 
-export default function () {
-  on<ResizeWindowHandler>(
-    'RESIZE_WINDOW',
-    function (windowSize: { width: number; height: number }) {
-      const { width, height } = windowSize
-      figma.ui.resize(width, height)
-    }
-  )
+    processValue(paddingLeft, 'left', 'padding');
+    processValue(paddingTop, 'top', 'padding');
+    processValue(paddingRight, 'right', 'padding');
+    processValue(paddingBottom, 'bottom', 'padding');
+    processValue(itemSpacing, node.layoutMode, 'gap');
+  }
 
-  on<InspectPageHandler>('INSPECT_PAGE', function () {
-    const frameData = figma.currentPage.children.filter(node => node.type === 'FRAME' || node.type === 'SECTION');
+  if ('children' in node) {
+    node.children.forEach((childNode) => {
+     findProperties(childNode, sizingData)
+    });
+  }
 
-    const allSizingValues = frameData.map(countPaddings).reduce<SizingValues>((acc, counts) => {
-      Object.keys(counts.paddings).forEach(key => {
-        acc.paddings[key] = (acc.paddings[key] || 0) + counts.paddings[key];
+  return sizingData;
+};
+
+
+export default function (): void {
+  on<ResizeWindowHandler>('RESIZE_WINDOW', function (windowSize: { width: number; height: number }): void {
+    const { width, height } = windowSize;
+    figma.ui.resize(width, height);
+  });
+  
+  let sizingData: PropertyTypeValues = {};
+
+  on<InspectPageHandler>('INSPECT_PAGE', function (): void {
+    sizingData = {}
+    const nodeData = figma.currentPage.children
+
+    nodeData.forEach((node) => {
+      const nodeSizingData = findProperties(node);
+
+      Object.keys(nodeSizingData).forEach((key) => {
+        
+        if (!sizingData[key]) {
+          sizingData[key] = { padding: {}, gap: {} };
+        }
+
+        const paddingData = nodeSizingData[key].padding;
+
+        Object.keys(paddingData).forEach((direction) => {
+          if (!sizingData[key].padding[direction]) {
+            sizingData[key].padding[direction] = { count: 0, nodes: [] };
+          }
+          sizingData[key].padding[direction].count += paddingData[direction].count;
+          sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
+        });
+        const gapData = nodeSizingData[key].gap;
+
+        Object.keys(gapData).forEach((direction) => {
+          if (!sizingData[key].gap[direction]) {
+            sizingData[key].gap[direction] = { count: 0, nodes: [] };
+          }
+          sizingData[key].gap[direction].count += gapData[direction].count;
+          sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
+        });
       });
-      Object.keys(counts.gaps).forEach(key => {
-        acc.gaps[key] = (acc.gaps[key] || 0) + counts.gaps[key];
-      });
-      return acc;
-    }, {
-      paddings: {},
-      gaps: {}
     });
 
-    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', allSizingValues);
+    figma.notify(`Inpected: ${figma.currentPage.name}`)
+
+    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', sizingData);
   });
 
-  on<InspectSelectionHandler>('INSPECT_SELECTION', function () {
-    const selectedNodes = figma.currentPage.selection;
+  on<InspectSelectionHandler>('INSPECT_SELECTION', function (): void {
+    sizingData = {}
+    const selectedNodes = figma.currentPage.selection
 
     if (selectedNodes.length === 0) {
-      figma.notify('Select a frame')
-      return;
+      figma.notify('select a node to start')
+    } else {
+      selectedNodes.forEach((node) => {
+        const nodeSizingData = findProperties(node);
+  
+        Object.keys(nodeSizingData).forEach((key) => {
+          if (!sizingData[key]) {
+            sizingData[key] = { padding: {}, gap: {} };
+          }
+
+          const paddingData = nodeSizingData[key].padding;
+  
+          Object.keys(paddingData).forEach((direction) => {
+            if (!sizingData[key].padding[direction]) {
+              sizingData[key].padding[direction] = { count: 0, nodes: [] };
+            }
+            sizingData[key].padding[direction].count += paddingData[direction].count;
+            sizingData[key].padding[direction].nodes.push(...paddingData[direction].nodes);
+          });
+          const gapData = nodeSizingData[key].gap;
+  
+          Object.keys(gapData).forEach((direction) => {
+            if (!sizingData[key].gap[direction]) {
+              sizingData[key].gap[direction] = { count: 0, nodes: [] };
+            }
+            sizingData[key].gap[direction].count += gapData[direction].count;
+            sizingData[key].gap[direction].nodes.push(...gapData[direction].nodes);
+          });
+        });
+      });
+      figma.notify(`Inspected: ${selectedNodes.length} ${selectedNodes.length > 0 ? 'nodes' : 'node'}`)
     }
-    figma.notify(`Inspected ${selectedNodes.length} frames`)
 
-    const allPaddingAndGapCounts = selectedNodes.map(countPaddings).reduce<SizingValues>((acc, counts) => {
-      Object.keys(counts.paddings).forEach(key => {
-        acc.paddings[key] = (acc.paddings[key] || 0) + counts.paddings[key];
-      });
-      Object.keys(counts.gaps).forEach(key => {
-        acc.gaps[key] = (acc.gaps[key] || 0) + counts.gaps[key];
-      });
-      return acc;
-    }, {
-      paddings: {},
-      gaps: {}
-    });
-
-    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', allPaddingAndGapCounts);
+    emit<UpdatePageDataHandler>('UPDATE_PAGE_DATA', sizingData);
+    
   });
 
-  on<ValueSelectHandler>("VALUE_SELECT", (data) => {
-    console.log(data.value, data.type);
-    const nodesArray = data.type === "paddings" ? paddingNodeReferences[data.value] : gapNodeReferences[data.value];
+  on<ValueSelectHandler>('VALUE_SELECT', (data): void => {
+    const nodesArray = sizingData[data.key][data.type][data.direction].nodes.map((node) => {
+      const sceneNode = figma.getNodeById(node.id);
+      if (sceneNode) {
+        if (sceneNode.type === 'FRAME' || sceneNode.type === 'SECTION') {
+          return sceneNode;
+        }
+      }
+      return sceneNode
+    }).filter(Boolean) as SceneNode[];
+
     figma.currentPage.selection = nodesArray;
     figma.viewport.scrollAndZoomIntoView(nodesArray);
   });
 
   showUI({
     height: 512,
-    width: 512
-  })
+    width: 512,
+  });
 }

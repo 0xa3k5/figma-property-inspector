@@ -1,30 +1,22 @@
-import "!./styles.css";
-import {
-  Button,
-  Container,
-  render,
-  Stack,
-  useWindowResize,
-  Tabs,
-  TabsOption,
-} from "@create-figma-plugin/ui";
+import "!./output.css";
+import { Container, render, useWindowResize } from "@create-figma-plugin/ui";
 import { emit, on } from "@create-figma-plugin/utilities";
-import { JSX, h } from "preact";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { h } from "preact";
+import { useEffect, useState } from "preact/hooks";
 
 import {
-  InspectPageHandler,
-  InspectSelectionHandler,
   ResizeWindowHandler,
   UpdatePageDataHandler,
-  SizingValues,
-  TProperties,
+  PropertyTypeValues,
 } from "./types";
-import TabContent from "./components/TabContent";
+import ValueDisplay from "./components/ValueDisplay";
+import Footer from "./components/Footer";
 
 function Plugin() {
-  const [pageData, setPageData] = useState<SizingValues | null>(null);
-  const [currentTab, setCurrentTab] = useState<"Paddings" | "Gaps">("Paddings");
+  const [pageData, setPageData] = useState<PropertyTypeValues | null>(null);
+  const [keyUsageCounts, setKeyUsageCounts] = useState<{
+    [key: string]: number;
+  }>({});
 
   function onWindowResize(windowSize: { width: number; height: number }) {
     emit<ResizeWindowHandler>("RESIZE_WINDOW", windowSize);
@@ -38,78 +30,61 @@ function Plugin() {
   });
 
   useEffect(() => {
-    function handleUpdatePageData(event: SizingValues) {
+    function handleUpdatePageData(event: PropertyTypeValues) {
       setPageData(event);
+      countKeyUsage(event);
     }
     on<UpdatePageDataHandler>("UPDATE_PAGE_DATA", handleUpdatePageData);
   }, []);
 
-  const handleInspectPageClick = useCallback(function () {
-    emit<InspectPageHandler>("INSPECT_PAGE");
-  }, []);
-
-  const handleInspectSelectionClick = useCallback(function () {
-    emit<InspectSelectionHandler>("INSPECT_SELECTION");
-  }, []);
-
-  const { paddings, gaps } = pageData || { paddings: null, gaps: null };
-
-  const tabOptions: Array<TabsOption> = [
-    {
-      children: (
-        <TabContent
-          data={paddings}
-          tabTitle={currentTab.toLowerCase() as TProperties}
-        />
-      ),
-      value: "Paddings",
-    },
-    {
-      children: (
-        <TabContent
-          data={gaps}
-          tabTitle={currentTab.toLowerCase() as TProperties}
-        />
-      ),
-      value: "Gaps",
-    },
-  ];
-
-  const handleChange = (event: JSX.TargetedEvent<HTMLInputElement>) => {
-    const newValue = event.currentTarget.value as typeof currentTab;
-    setCurrentTab(newValue);
+  const countKeyUsage = (data: PropertyTypeValues) => {
+    const keyCounts: { [key: string]: number } = {};
+    Object.entries(data).forEach(([key, value]) => {
+      let count = 0;
+      Object.values(value.padding).forEach((propertyValue) => {
+        count += propertyValue.count;
+      });
+      Object.values(value.gap).forEach((propertyValue) => {
+        count += propertyValue.count;
+      });
+      keyCounts[key] = (keyCounts[key] || 0) + count;
+    });
+    setKeyUsageCounts(keyCounts);
   };
+
+  if (!pageData || isObjectEmpty(pageData)) {
+    return (
+      <div className="">
+        <div className="flex w-full h-full items-center justify-center">
+          null
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  function isObjectEmpty(obj: object) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   return (
     <Container space="medium">
-      <Stack space="medium">
-        <Tabs
-          onChange={(e) => handleChange(e)}
-          options={tabOptions}
-          value={currentTab}
-        />
-        <div
-          style={{
-            padding: "0.5rem 1rem",
-            display: "flex",
-            position: "fixed",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: "1px solid var(--figma-color-border)",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: "var(--figma-color-bg)",
-          }}
-        >
-          <Button secondary fullWidth onClick={handleInspectSelectionClick}>
-            Inspect Selecion
-          </Button>
-          <Button fullWidth onClick={handleInspectPageClick}>
-            Inspect Full Page
-          </Button>
-        </div>
-      </Stack>
+      <div className="flex flex-col mb-11">
+        {Object.entries(pageData).map(([key, value]) => (
+          <ValueDisplay
+            key={key}
+            propertyKey={key}
+            totalCount={keyUsageCounts[key]}
+            value={value}
+          />
+        ))}
+      </div>
+      <Footer />
     </Container>
   );
 }

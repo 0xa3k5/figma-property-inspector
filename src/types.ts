@@ -21,16 +21,27 @@ export interface InspectSelectionHandler extends EventHandler {
 
 export interface ValueSelectHandler extends EventHandler {
   name: 'VALUE_SELECT'
-  handler: (data: { value: string; type: "paddings" | "gaps" }) => void;
+  handler: (data: { key: string, direction: string; type: PropertyType }) => void;
 }
 
-export type TProperties = "paddings" | "gaps"
+export type PropertyType = 'padding' | 'gap';
 
-export type GapCounts = Record<string, number>
+export interface NodeReference {
+    id: string;
+}
 
-export type SizingValue = Record<string, number>;
+export interface PropertyValue {
+    [direction: string]: {
+      count: number;
+      nodes: NodeReference[]
+    };
+}
 
-export interface SizingValues {
-  paddings: SizingValue;
-  gaps: SizingValue;
+export interface PropertyValues {
+    padding: PropertyValue;
+    gap: PropertyValue;
+}
+
+export interface PropertyTypeValues {
+    [key: string]: PropertyValues;
 }
