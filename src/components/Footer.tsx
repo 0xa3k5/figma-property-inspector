@@ -15,7 +15,7 @@ export default function Footer(): JSX.Element {
 
   return (
     <div
-      className="flex fixed px-2 py-4 justify-between items-center bottom-0 left-0 right-0"
+      className="flex z-10 fixed px-2 py-4 justify-between items-center bottom-0 left-0 right-0"
       style={{
         borderTop: "1px solid var(--figma-color-border)",
         backgroundColor: "var(--figma-color-bg)",

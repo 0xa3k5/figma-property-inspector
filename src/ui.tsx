@@ -80,8 +80,11 @@ function Plugin() {
   return (
     <Container space="medium">
       <div
-        className="flex gap-4 py-4 items-center w-full"
-        style={{ borderBottom: "1px solid var(--figma-color-border)" }}
+        className="flex z-10 fixed gap-4 p-4 items-center top-0 left-0 right-0"
+        style={{
+          borderBottom: "1px solid var(--figma-color-border)",
+          backgroundColor: "var(--figma-color-bg)",
+        }}
       >
         {Object.values(PropertyType).map((type) => (
           <Toggle
@@ -98,7 +101,7 @@ function Plugin() {
           </Toggle>
         ))}
       </div>
-      <div className="mb-12">
+      <div className="my-12">
         {Object.entries(pageData).map(([key, value]) => {
           return (
             <div key={key}>

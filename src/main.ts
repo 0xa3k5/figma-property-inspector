@@ -30,7 +30,7 @@ const processPropertyValue = (
 };
 
 const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
-  const isAutoLayout = "layoutMode" in node && node.primaryAxisAlignItems !== "SPACE_BETWEEN";
+  const isAutoLayout = "layoutMode" in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== "SPACE_BETWEEN";
   const hasStroke = "strokes" in node && node.strokes.length > 0 && "strokeLeftWeight" in node;
   const hasCornerRadius = "cornerRadius" in node && "topLeftRadius" in node;
 
