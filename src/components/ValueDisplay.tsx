@@ -6,6 +6,12 @@ import {
   PaddingLeftIcon,
   PaddingRightIcon,
   SelectIcon,
+  StrokeLeftIcon,
+  StrokeTopIcon,
+  StrokeRightIcon,
+  StrokeBottomIcon,
+  GapVerticalIcon,
+  GapHorizontalIcon,
 } from "../icons";
 import { emit } from "@create-figma-plugin/utilities";
 
@@ -15,33 +21,6 @@ interface Props {
   value: PropertyValues;
   visibleProperties: { [k: string]: boolean };
 }
-
-const getIcon = (type: PropertyType, direction: string) => {
-  if (type === "padding") {
-    switch (direction) {
-      case "top":
-        return <PaddingTopIcon />;
-      case "bottom":
-        return <PaddingBottomIcon />;
-      case "left":
-        return <PaddingLeftIcon />;
-      case "right":
-        return <PaddingRightIcon />;
-
-      default:
-        break;
-    }
-  } else if (type === "gap") {
-    switch (direction) {
-      case "vertical":
-        return <PaddingTopIcon />;
-      case "horizontal":
-        return <PaddingBottomIcon />;
-      default:
-        break;
-    }
-  }
-};
 
 export default function ValueDisplay({
   propertyKey,
@@ -111,3 +90,41 @@ export default function ValueDisplay({
     </div>
   );
 }
+
+const getIcon = (type: PropertyType, direction: string) => {
+  if (type === "padding") {
+    switch (direction) {
+      case "top":
+        return <PaddingTopIcon />;
+      case "bottom":
+        return <PaddingBottomIcon />;
+      case "left":
+        return <PaddingLeftIcon />;
+      case "right":
+        return <PaddingRightIcon />;
+
+      default:
+        break;
+    }
+  } else if (type === "gap") {
+    switch (direction) {
+      case "vertical":
+        return <GapVerticalIcon />;
+      case "horizontal":
+        return <GapHorizontalIcon />;
+      default:
+        break;
+    }
+  } else if (type === "stroke") {
+    switch (direction) {
+      case "left":
+        return <StrokeLeftIcon />;
+      case "top":
+        return <StrokeTopIcon />;
+      case "right":
+        return <StrokeRightIcon />;
+      case "bottom":
+        return <StrokeBottomIcon />;
+    }
+  }
+};

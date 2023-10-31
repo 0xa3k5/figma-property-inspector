@@ -1,94 +1,207 @@
 import { h } from "preact";
 
-export const SelectIcon = () => {
+type SVGProps = React.SVGProps<SVGSVGElement>;
+
+export const SelectIcon = (props: SVGProps) => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
       fill="none"
-      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path
-        fill="#fff"
         fill-rule="evenodd"
-        d="M5.625 4.5V2.26875c-1.7715.1755-3.18 1.58475-3.35625 3.35625H4.5v.75H2.26875c.1755 1.7715 1.58475 3.18 3.35625 3.35625V7.5h.75v2.23125c1.7715-.1755 3.18-1.58475 3.35625-3.35625H7.5v-.75h2.23125C9.55575 3.8535 8.1465 2.445 6.375 2.26875V4.5h-.75Zm4.86 1.125c-.1808-2.18625-1.92375-3.92925-4.11-4.11V0h-.75v1.515c-2.18625.18075-3.92925 1.92375-4.11 4.11H0v.75h1.515c.18075 2.18625 1.92375 3.9292 4.11 4.11V12h.75v-1.515c2.18625-.1808 3.9292-1.92375 4.11-4.11H12v-.75h-1.515Z"
         clip-rule="evenodd"
+        d="M11.625 10.5V8.26875C9.8535 8.44425 8.445 9.8535 8.26875 11.625H10.5V12.375H8.26875C8.44425 14.1465 9.8535 15.555 11.625 15.7312V13.5H12.375V15.7312C14.1465 15.5557 15.555 14.1465 15.7312 12.375H13.5V11.625H15.7312C15.5557 9.8535 14.1465 8.445 12.375 8.26875V10.5H11.625ZM16.485 11.625C16.3042 9.43875 14.5612 7.69575 12.375 7.515V6H11.625V7.515C9.43875 7.69575 7.69575 9.43875 7.515 11.625H6V12.375H7.515C7.69575 14.5612 9.43875 16.3042 11.625 16.485V18H12.375V16.485C14.5612 16.3042 16.3042 14.5612 16.485 12.375H18V11.625H16.485Z"
+        fill="white"
       />
     </svg>
   );
 };
 
-export const PaddingTopIcon = () => {
+export const PaddingLeftIcon = (props: SVGProps) => {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path
+        d="M6 18V6H7V18H6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
         fill="currentColor"
-        fillRule="evenodd"
-        d="M0 0h12v1H0V0zm3 3h6v6H3V3zm1 1v4h4V4H4z"
       />
     </svg>
   );
 };
 
-export const PaddingBottomIcon = () => {
+export const PaddingTopIcon = (props: SVGProps) => {
   return (
     <svg
-      class="svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      {...props}
     >
       <path
+        d="M6 6H18V7H6V6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
         fill="currentColor"
-        fillRule="evenodd"
-        stroke="none"
-        d="M3 3h6v6H3V3zm1 1v4h4V4H4zm8 8H0v-1h12v1z"
       />
     </svg>
   );
 };
 
-export const PaddingLeftIcon = () => {
+export const PaddingRightIcon = (props: SVGProps) => {
   return (
     <svg
-      class="svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      {...props}
     >
       <path
+        d="M18 6V18H17V6H18ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
         fill="currentColor"
-        fillRule="evenodd"
-        stroke="none"
-        d="M0 12V0h1v12H0zm3-9h6v6H3V3zm1 1v4h4V4H4z"
       />
     </svg>
   );
 };
 
-export const PaddingRightIcon = () => {
+export const PaddingBottomIcon = (props: SVGProps) => {
   return (
     <svg
-      class="svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      {...props}
     >
       <path
+        d="M9 9H15V15H9V9ZM10 10V14H14V10H10ZM18 18H6V17H18V18Z"
         fill="currentColor"
-        fillRule="evenodd"
-        stroke="none"
-        d="M12 0v12h-1V0h1zM3 3h6v6H3V3zm1 1v4h4V4H4z"
+      />
+    </svg>
+  );
+};
+
+export const StrokeLeftIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M16.5 18H10V17H16.5C16.776 17 17 16.776 17 16.5V7.5C17 7.224 16.776 7 16.5 7H10V6H16.5C17.328 6 18 6.672 18 7.5V16.5C18 17.328 17.328 18 16.5 18Z"
+        fill="currentColor"
+        fill-opacity="0.3"
+      />
+      <path d="M6 18V6H7V18H6Z" fill="currentColor" />
+    </svg>
+  );
+};
+export const StrokeTopIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M6 16.5V10H7V16.5C7 16.776 7.224 17 7.5 17H16.5C16.776 17 17 16.776 17 16.5V10H18V16.5C18 17.328 17.328 18 16.5 18H7.5C6.672 18 6 17.328 6 16.5Z"
+        fill="currentColor"
+        fill-opacity="0.3"
+      />
+      <path d="M6 6H18V7H6V6Z" fill="currentColor" />
+    </svg>
+  );
+};
+export const StrokeRightIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M7.5 6H14V7H7.5C7.224 7 7 7.224 7 7.5V16.5C7 16.776 7.224 17 7.5 17H14V18H7.5C6.672 18 6 17.328 6 16.5V7.5C6 6.672 6.672 6 7.5 6Z"
+        fill="currentColor"
+        fill-opacity="0.3"
+      />
+      <path d="M18 6V18H17V6H18Z" fill="currentColor" />
+    </svg>
+  );
+};
+
+export const StrokeBottomIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M18 7.5V14H17V7.5C17 7.224 16.776 7 16.5 7H7.5C7.224 7 7 7.224 7 7.5V14H6V7.5C6 6.672 6.672 6 7.5 6H16.5C17.328 6 18 6.672 18 7.5Z"
+        fill="currentColor"
+        fill-opacity="0.3"
+      />
+      <path d="M18 18H6V17H18V18Z" fill="currentColor" />
+    </svg>
+  );
+};
+
+export const GapVerticalIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M17 19V17H7V19H6V16H18V19H17ZM18 9H6V6H7V8H17V6H18V9ZM15 13V12H9V13H15Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+export const GapHorizontalIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M18 7H16V17H18V18H15V6H18V7ZM8 6V18H5V17H7V7H5V6H8ZM12 9H11V15H12V9Z"
+        fill="currentColor"
       />
     </svg>
   );
