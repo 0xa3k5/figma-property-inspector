@@ -25,10 +25,8 @@ function Plugin() {
     [key: string]: number;
   }>({});
 
-  const propertyTypes: PropertyType[] = ["padding", "gap", "stroke"];
-
   const [propertyVisibility, setPropertyVisibility] = useState(
-    Object.fromEntries(propertyTypes.map((type) => [type, true]))
+    Object.fromEntries(Object.values(PropertyType).map((type) => [type, true]))
   );
 
   function onWindowResize(windowSize: { width: number; height: number }) {
@@ -54,7 +52,7 @@ function Plugin() {
     const keyCounts: { [key: string]: number } = {};
     Object.entries(data).forEach(([key, value]) => {
       let count = 0;
-      propertyTypes.forEach((type) => {
+      Object.values(PropertyType).forEach((type) => {
         Object.values(value[type]).forEach((propertyValue) => {
           count += propertyValue.count;
         });
@@ -85,15 +83,15 @@ function Plugin() {
         className="flex gap-4 py-4 items-center w-full"
         style={{ borderBottom: "1px solid var(--figma-color-border)" }}
       >
-        {propertyTypes.map((type) => (
+        {Object.values(PropertyType).map((type) => (
           <Toggle
             key={type}
             value={propertyVisibility[type]}
             onChange={() => {
-              setPropertyVisibility({
-                ...propertyVisibility,
-                [type]: !propertyVisibility[type],
-              });
+              setPropertyVisibility((prevVisibility) => ({
+                ...prevVisibility,
+                [type]: !prevVisibility[type],
+              }));
             }}
           >
             <Text>{type}</Text>

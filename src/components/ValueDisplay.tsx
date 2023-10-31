@@ -1,19 +1,24 @@
 import { h } from "preact";
 import { PropertyType, PropertyValues, ValueSelectHandler } from "../types";
+
+import { emit } from "@create-figma-plugin/utilities";
 import {
+  SelectIcon,
   PaddingTopIcon,
   PaddingBottomIcon,
   PaddingLeftIcon,
   PaddingRightIcon,
-  SelectIcon,
+  GapVerticalIcon,
+  GapHorizontalIcon,
   StrokeLeftIcon,
   StrokeTopIcon,
   StrokeRightIcon,
   StrokeBottomIcon,
-  GapVerticalIcon,
-  GapHorizontalIcon,
+  RadiusTopLeftIcon,
+  RadiusTopRightIcon,
+  RadiusBottomLeftIcon,
+  RadiusBottomRightIcon,
 } from "../icons";
-import { emit } from "@create-figma-plugin/utilities";
 
 interface Props {
   propertyKey: string;
@@ -68,8 +73,6 @@ export default function ValueDisplay({
     ) : null;
   };
 
-  const propertyTypes: PropertyType[] = ["padding", "gap", "stroke"];
-
   return (
     <div
       className="grid grid-cols-4"
@@ -85,7 +88,7 @@ export default function ValueDisplay({
         </div>
       </div>
       <div className="flex col-span-3 flex-col gap-4 pt-2">
-        {propertyTypes.map((type) => renderValueSection(type))}
+        {Object.values(PropertyType).map((type) => renderValueSection(type))}
       </div>
     </div>
   );
@@ -125,6 +128,17 @@ const getIcon = (type: PropertyType, direction: string) => {
         return <StrokeRightIcon />;
       case "bottom":
         return <StrokeBottomIcon />;
+    }
+  } else if (type === "radius") {
+    switch (direction) {
+      case "top-left":
+        return <RadiusTopLeftIcon />;
+      case "top-right":
+        return <RadiusTopRightIcon />;
+      case "bottom-left":
+        return <RadiusBottomLeftIcon />;
+      case "bottom-right":
+        return <RadiusBottomRightIcon />;
     }
   }
 };

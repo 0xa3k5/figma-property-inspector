@@ -24,7 +24,12 @@ export interface ValueSelectHandler extends EventHandler {
   handler: (data: { key: string, direction: string; type: PropertyType }) => void;
 }
 
-export type PropertyType = 'padding' | 'gap' | 'stroke';
+export enum PropertyType {
+  PADDING = 'padding',
+  GAP = 'gap',
+  STROKE = 'stroke',
+  RADIUS = 'radius'
+}
 
 export interface NodeReference {
     id: string;
@@ -41,6 +46,7 @@ export interface PropertyValues {
     padding: PropertyValue;
     gap: PropertyValue;
     stroke: PropertyValue;
+    radius: PropertyValue
 }
 
 export interface PropertyTypeValues {

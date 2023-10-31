@@ -189,6 +189,7 @@ export const GapVerticalIcon = (props: SVGProps) => {
     </svg>
   );
 };
+
 export const GapHorizontalIcon = (props: SVGProps) => {
   return (
     <svg
@@ -201,6 +202,86 @@ export const GapHorizontalIcon = (props: SVGProps) => {
     >
       <path
         d="M18 7H16V17H18V18H15V6H18V7ZM8 6V18H5V17H7V7H5V6H8ZM12 9H11V15H12V9Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const RadiusTopLeftIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M6 12.75C6 9.0225 9.0225 6 12.75 6H18V7.5H12.75C9.8505 7.5 7.5 9.8505 7.5 12.75V18H6V12.75Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const RadiusTopRightIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M18 12.75C18 9.0225 14.9775 6 11.25 6H6V7.5H11.25C14.1495 7.5 16.5 9.8505 16.5 12.75V18H18V12.75Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const RadiusBottomLeftIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M6 11.25C6 14.9775 9.0225 18 12.75 18H18V16.5H12.75C9.8505 16.5 7.5 14.1495 7.5 11.25V6H6V11.25Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const RadiusBottomRightIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M18 11.25C18 14.9775 14.9775 18 11.25 18H6V16.5H11.25C14.1495 16.5 16.5 14.1495 16.5 11.25V6H18V11.25Z"
         fill="currentColor"
       />
     </svg>
