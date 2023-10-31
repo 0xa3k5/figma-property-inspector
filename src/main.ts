@@ -84,6 +84,17 @@ const updateSizingData = (
   });
 };
 
+const inspectNode = (node: BaseNode, sizingData: PropertyTypeValues) => {
+  const nodeSizingData: PropertyTypeValues = {};
+  processValues(node, sizingData);
+  updateSizingData(nodeSizingData, sizingData);
+
+  if ('children' in node) {
+    node.children.forEach((childNode) => {
+      inspectNode(childNode, sizingData);
+    });
+  }
+}
 
 export default function (): void {
   on<ResizeWindowHandler>(
@@ -101,9 +112,7 @@ export default function (): void {
     const nodeData = figma.currentPage.children;
 
     nodeData.forEach((node) => {
-      const nodeSizingData: PropertyTypeValues = {};
-      processValues(node, sizingData);
-      updateSizingData(nodeSizingData, sizingData);
+      inspectNode(node, sizingData)
     });
 
     figma.notify(`Inspected: ${figma.currentPage.name}`);
@@ -114,14 +123,12 @@ export default function (): void {
   on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
     sizingData = {};
     const selectedNodes = figma.currentPage.selection;
-
+    
     if (selectedNodes.length === 0) {
       figma.notify("Select a node to start");
     } else {
       selectedNodes.forEach((node) => {
-        const nodeSizingData: PropertyTypeValues = {};
-        processValues(node, sizingData);
-        updateSizingData(nodeSizingData, sizingData);
+        inspectNode(node, sizingData)
       });
       figma.notify(
         `Inspected: ${selectedNodes.length} ${
