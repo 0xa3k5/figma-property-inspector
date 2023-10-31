@@ -10,7 +10,7 @@ import {
 } from "./types";
 
 const processPropertyValue = (
-  node: BaseNode,
+  node: SceneNode,
   propValue: number | undefined,
   direction: string,
   type: PropertyType,
@@ -29,18 +29,19 @@ const processPropertyValue = (
   }
 };
 
-const processValues = (node: BaseNode, sizingData: PropertyTypeValues) => {
-  if ("layoutMode" in node && node.primaryAxisAlignItems !== "SPACE_BETWEEN") {
+const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
+  const isAutoLayout =
+    "layoutMode" in node && node.primaryAxisAlignItems !== "SPACE_BETWEEN";
+  const hasStroke =
+    "strokes" in node && node.strokes.length > 0 && "strokeLeftWeight" in node;
+
+  if (isAutoLayout) {
     const {
-      paddingTop,
-      paddingBottom,
       paddingLeft,
+      paddingTop,
       paddingRight,
+      paddingBottom,
       itemSpacing,
-      strokeLeftWeight,
-      strokeRightWeight,
-      strokeTopWeight,
-      strokeBottomWeight,
     } = node;
 
     processPropertyValue(node, paddingLeft, "left", "padding", sizingData);
@@ -48,11 +49,32 @@ const processValues = (node: BaseNode, sizingData: PropertyTypeValues) => {
     processPropertyValue(node, paddingRight, "right", "padding", sizingData);
     processPropertyValue(node, paddingBottom, "bottom", "padding", sizingData);
     processPropertyValue(node, itemSpacing, node.layoutMode, "gap", sizingData);
+  }
+
+  if (hasStroke) {
+    const {
+      strokeLeftWeight,
+      strokeRightWeight,
+      strokeTopWeight,
+      strokeBottomWeight,
+    } = node;
 
     processPropertyValue(node, strokeLeftWeight, "left", "stroke", sizingData);
     processPropertyValue(node, strokeTopWeight, "top", "stroke", sizingData);
-    processPropertyValue(node, strokeRightWeight, "right", "stroke", sizingData);
-    processPropertyValue(node, strokeBottomWeight, "bottom", "stroke", sizingData);
+    processPropertyValue(
+      node,
+      strokeRightWeight,
+      "right",
+      "stroke",
+      sizingData
+    );
+    processPropertyValue(
+      node,
+      strokeBottomWeight,
+      "bottom",
+      "stroke",
+      sizingData
+    );
   }
 };
 
@@ -84,17 +106,17 @@ const updateSizingData = (
   });
 };
 
-const inspectNode = (node: BaseNode, sizingData: PropertyTypeValues) => {
+const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
   const nodeSizingData: PropertyTypeValues = {};
   processValues(node, sizingData);
   updateSizingData(nodeSizingData, sizingData);
 
-  if ('children' in node) {
+  if ("children" in node) {
     node.children.forEach((childNode) => {
       inspectNode(childNode, sizingData);
     });
   }
-}
+};
 
 export default function (): void {
   on<ResizeWindowHandler>(
@@ -112,7 +134,7 @@ export default function (): void {
     const nodeData = figma.currentPage.children;
 
     nodeData.forEach((node) => {
-      inspectNode(node, sizingData)
+      inspectNode(node, sizingData);
     });
 
     figma.notify(`Inspected: ${figma.currentPage.name}`);
@@ -123,12 +145,12 @@ export default function (): void {
   on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
     sizingData = {};
     const selectedNodes = figma.currentPage.selection;
-    
+
     if (selectedNodes.length === 0) {
       figma.notify("Select a node to start");
     } else {
       selectedNodes.forEach((node) => {
-        inspectNode(node, sizingData)
+        inspectNode(node, sizingData);
       });
       figma.notify(
         `Inspected: ${selectedNodes.length} ${
@@ -140,16 +162,12 @@ export default function (): void {
     emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", sizingData);
   });
 
-  on<ValueSelectHandler>('VALUE_SELECT', (data): void => {
-    const nodesArray = sizingData[data.key][data.type][data.direction].nodes.map((node) => {
-      const sceneNode = figma.getNodeById(node.id);
-      if (sceneNode) {
-        if (sceneNode.type === 'FRAME' || sceneNode.type === 'SECTION') {
-          return sceneNode;
-        }
-      }
-      return sceneNode
-    }).filter(Boolean) as SceneNode[];
+  on<ValueSelectHandler>("VALUE_SELECT", (data): void => {
+    const nodesArray = sizingData[data.key][data.type][data.direction].nodes
+      .map((node) => {
+        return figma.getNodeById(node.id);
+      })
+      .filter(Boolean) as SceneNode[];
 
     figma.currentPage.selection = nodesArray;
     figma.viewport.scrollAndZoomIntoView(nodesArray);
