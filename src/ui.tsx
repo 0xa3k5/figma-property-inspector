@@ -18,6 +18,7 @@ import {
 } from "./types";
 import ValueDisplay from "./components/ValueDisplay";
 import Footer from "./components/Footer";
+import BarChart from "./components/BarChart";
 
 function Plugin() {
   const [pageData, setPageData] = useState<PropertyTypeValues | null>(null);
@@ -102,6 +103,7 @@ function Plugin() {
         ))}
       </div>
       <div className="my-12">
+        <BarChart pageData={pageData} rawData={keyUsageCounts} title="" />
         {Object.entries(pageData).map(([key, value]) => {
           return (
             <div key={key}>

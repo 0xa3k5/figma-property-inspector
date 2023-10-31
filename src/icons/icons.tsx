@@ -22,6 +22,23 @@ export const SelectIcon = (props: SVGProps) => {
   );
 };
 
+export const ChevronUpIcon = (props: SVGProps) => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M6 14.6072L7.26655 16L12 10.7855L16.7335 16L18 14.6072L12 8L6 14.6072Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const PaddingLeftIcon = (props: SVGProps) => {
   return (
     <svg

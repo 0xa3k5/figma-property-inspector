@@ -9,15 +9,34 @@ import {
 } from "chart.js";
 import { h } from "preact";
 import { Bar } from "react-chartjs-2";
+import { PropertyType, PropertyTypeValues } from "../types";
 
 interface Props {
   rawData: Record<string, number>;
   title: string;
+  pageData: PropertyTypeValues;
 }
 
-export default function BarChart({ rawData, title }: Props) {
+export default function BarChart({ rawData, title, pageData }: Props) {
   const labels = Object.keys(rawData);
   const dataValues = Object.values(rawData);
+
+  const getPropertyCounts = (key: any) => {
+    const propertyValues = pageData[key];
+
+    const counts = Object.fromEntries(
+      Object.values(PropertyType).map((type) => [type, 0])
+    );
+
+    Object.values(PropertyType).forEach((type) => {
+      counts[type] = Object.values(propertyValues[type]).reduce(
+        (sum, { count }) => sum + count,
+        0
+      );
+    });
+
+    return counts;
+  };
 
   const data = {
     labels,
@@ -39,12 +58,24 @@ export default function BarChart({ rawData, title }: Props) {
       tooltip: {
         callbacks: {
           title: (context: any) => {
-            return `${context[0].label} px`;
+            const label = context[0].label;
+            const totalCount = context[0].parsed.y;
+            return `${label}px • (${totalCount})`;
           },
-          label: (context: any) => {
-            return `${context.parsed.y} times`;
+          beforeBody: (context: any) => {
+            const label = context[0].label;
+            const counts = getPropertyCounts(label);
+            return Object.values(PropertyType).map(
+              (type) =>
+                `${type.charAt(0).toUpperCase() + type.slice(1)} • (${
+                  counts[type]
+                })`
+            );
           },
-          
+          label: () => {
+            // Hide the default label
+            return "";
+          },
         },
       },
     },
