@@ -1,52 +1,62 @@
-import "!./output.css";
-import {
-  Toggle,
-  Container,
-  render,
-  useWindowResize,
-  Text,
-} from "@create-figma-plugin/ui";
-import { emit, on } from "@create-figma-plugin/utilities";
-import { h } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import '!./output.css';
+import { Toggle, Container, render, useWindowResize, Text } from '@create-figma-plugin/ui';
+import { emit, on } from '@create-figma-plugin/utilities';
+import { h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 
 import {
   ResizeWindowHandler,
   UpdatePageDataHandler,
   PropertyTypeValues,
   PropertyType,
-} from "./types";
-import ValueDisplay from "./components/ValueDisplay";
-import Footer from "./components/Footer";
-import BarChart from "./components/BarChart";
+  GetVariablesHandler,
+  GetVariableCollectionsHandler,
+  IVariable,
+  IVariableCollection,
+} from './types';
+import ValueDisplay from './components/ValueDisplay';
+import Footer from './components/Footer';
+import BarChart from './components/BarChart';
 
 function Plugin() {
   const [pageData, setPageData] = useState<PropertyTypeValues | null>(null);
-  const [keyUsageCounts, setKeyUsageCounts] = useState<{
-    [key: string]: number;
-  }>({});
+  const [variables, setVariables] = useState<IVariable[]>([]);
+  const [keyUsageCounts, setKeyUsageCounts] = useState<{ [key: string]: number }>({});
+  const [variableCollections, setVariableCollections] = useState<IVariableCollection[]>([]);
 
   const [propertyVisibility, setPropertyVisibility] = useState(
     Object.fromEntries(Object.values(PropertyType).map((type) => [type, true]))
   );
 
   function onWindowResize(windowSize: { width: number; height: number }) {
-    emit<ResizeWindowHandler>("RESIZE_WINDOW", windowSize);
+    emit<ResizeWindowHandler>('RESIZE_WINDOW', windowSize);
   }
   useWindowResize(onWindowResize, {
     maxHeight: 720,
     maxWidth: 720,
     minHeight: 320,
     minWidth: 320,
-    resizeBehaviorOnDoubleClick: "minimize",
+    resizeBehaviorOnDoubleClick: 'minimize',
   });
 
   useEffect(() => {
-    function handleUpdatePageData(event: PropertyTypeValues) {
-      setPageData(event);
-      countKeyUsage(event);
+    function handleUpdatePageData(properties: PropertyTypeValues) {
+      setPageData(properties);
+      countKeyUsage(properties);
     }
-    on<UpdatePageDataHandler>("UPDATE_PAGE_DATA", handleUpdatePageData);
+    function handleGetVariables(data: IVariable[]) {
+      setVariables(data);
+      console.log(data);
+    }
+
+    function handleGetVariableCollections(data: IVariableCollection[]) {
+      console.log('collections:', data);
+      setVariableCollections(data);
+    }
+
+    on<UpdatePageDataHandler>('UPDATE_PAGE_DATA', handleUpdatePageData);
+    on<GetVariablesHandler>('GET_VARIABLES', handleGetVariables);
+    on<GetVariableCollectionsHandler>('GET_VARIABLE_COLLECTIONS', handleGetVariableCollections);
   }, []);
 
   const countKeyUsage = (data: PropertyTypeValues) => {
@@ -70,9 +80,7 @@ function Plugin() {
   if (!pageData || isObjectEmpty(pageData)) {
     return (
       <div className="">
-        <div className="flex w-full h-full items-center justify-center">
-          null
-        </div>
+        <div className="flex h-full w-full items-center justify-center">null</div>
         <Footer />
       </div>
     );
@@ -81,10 +89,10 @@ function Plugin() {
   return (
     <Container space="medium">
       <div
-        className="flex z-10 fixed gap-4 p-4 items-center top-0 left-0 right-0"
+        className="fixed left-0 right-0 top-0 z-10 flex items-center justify-between gap-4 p-4"
         style={{
-          borderBottom: "1px solid var(--figma-color-border)",
-          backgroundColor: "var(--figma-color-bg)",
+          borderBottom: '1px solid var(--figma-color-border)',
+          backgroundColor: 'var(--figma-color-bg)',
         }}
       >
         {Object.values(PropertyType).map((type) => (
@@ -112,6 +120,8 @@ function Plugin() {
                 totalCount={keyUsageCounts[key]}
                 value={value}
                 visibleProperties={propertyVisibility}
+                variables={variables}
+                collections={variableCollections}
               />
             </div>
           );

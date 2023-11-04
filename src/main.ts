@@ -7,6 +7,11 @@ import {
   InspectSelectionHandler,
   PropertyType,
   ValueSelectHandler,
+  GetVariablesHandler,
+  GetVariableCollectionsHandler,
+  IVariableCollection,
+  IVariable,
+  AssignVariableHandler,
 } from "./types";
 
 const processPropertyValue = (
@@ -29,6 +34,26 @@ const processPropertyValue = (
   }
 };
 
+const propertyToBindableNodeField: { [key: string]: { [direction: string]: VariableBindableNodeField } } = {
+  padding: {
+    left: 'paddingLeft',
+    right: 'paddingRight',
+    top: 'paddingTop',
+    bottom: 'paddingBottom',
+  },
+  radius: {
+    'bottom-left': 'bottomLeftRadius',
+    'bottom-right': 'bottomRightRadius',
+    'top-left': 'topLeftRadius',
+    'top-right': 'topRightRadius',
+  },
+  gap: {
+    'HORIZONTAL': 'itemSpacing',
+    'VERTICAL': 'itemSpacing'
+  }
+};
+
+
 const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
   const isAutoLayout = "layoutMode" in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== "SPACE_BETWEEN";
   const hasStroke = "strokes" in node && node.strokes.length > 0 && "strokeLeftWeight" in node;
@@ -45,7 +70,7 @@ const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
   }
 
   if (hasStroke) {
-    const { strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight} = node;
+    const { strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight } = node;
 
     processPropertyValue(node, strokeLeftWeight, "left", PropertyType.STROKE, sizingData);
     processPropertyValue(node, strokeTopWeight, "top", PropertyType.STROKE, sizingData);
@@ -85,12 +110,40 @@ const updateSizingData = (
       });
     };
 
-    updatePropertyData(PropertyType.PADDING);
-    updatePropertyData(PropertyType.GAP);
-    updatePropertyData(PropertyType.STROKE);
-    updatePropertyData(PropertyType.RADIUS);
+    Object.values(PropertyType).map((type) => updatePropertyData(type))
   });
 };
+
+const getFloatVariables = (): IVariable[] => {
+  return figma.variables.getLocalVariables('FLOAT').map((v) => {
+    return {
+      id: v.id,
+      name: v.name,
+      key: v.key,
+      scopes: v.scopes,
+      valuesByMode: v.valuesByMode,
+      codeSyntax: v.codeSyntax,
+      description: v.description,
+      remote: v.remote,
+      resolvedType: v.resolvedType,
+      variableCollectionId: v.variableCollectionId,
+    };
+  });
+};
+
+const getVariableCollections = (): IVariableCollection[] => {
+  return figma.variables.getLocalVariableCollections().map((col) => {
+    return {
+      id: col.id,
+      defaultModeId: col.defaultModeId,
+      hiddenFromPublishing: col.hiddenFromPublishing,
+      key: col.key,
+      modes: col.modes,
+      name: col.name,
+      variableIds: col.variableIds
+    }
+  })
+}
 
 const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
   const nodeSizingData: PropertyTypeValues = {};
@@ -113,43 +166,63 @@ export default function (): void {
     }
   );
 
-  let sizingData: PropertyTypeValues = {};
+  let properties: PropertyTypeValues = {};
 
   on<InspectPageHandler>("INSPECT_PAGE", function (): void {
-    sizingData = {};
+    properties = {};
     const nodeData = figma.currentPage.children;
+    const variables = getFloatVariables();
+    const variableCollections = getVariableCollections()
 
     nodeData.forEach((node) => {
-      inspectNode(node, sizingData);
+      inspectNode(node, properties);
     });
 
     figma.notify(`Inspected: ${figma.currentPage.name}`);
-
-    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", sizingData);
+    emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", variableCollections)
+    emit<GetVariablesHandler>("GET_VARIABLES", variables);
+    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
   });
 
   on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
-    sizingData = {};
+    const variables = getFloatVariables();
+    properties = {};
     const selectedNodes = figma.currentPage.selection;
 
     if (selectedNodes.length === 0) {
       figma.notify("Select a node to start");
     } else {
       selectedNodes.forEach((node) => {
-        inspectNode(node, sizingData);
+        inspectNode(node, properties);
       });
       figma.notify(
-        `Inspected: ${selectedNodes.length} ${
-          selectedNodes.length > 0 ? "nodes" : "node"
+        `Inspected: ${selectedNodes.length} ${selectedNodes.length > 0 ? "nodes" : "node"
         }`
       );
     }
 
-    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", sizingData);
+    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
   });
 
+  on<AssignVariableHandler>("ASSIGN_VARIABLE", (data): void => {
+    const nodesArray: SceneNode[] = [];
+
+    for (const dir of Object.keys(properties[data.key][data.type])) {
+      console.log(dir)
+      const nodesForDirection = properties[data.key][data.type][dir]?.nodes || [];
+      nodesForDirection.forEach((nodeData) => {
+        const node = figma.getNodeById(nodeData.id) as SceneNode;
+        if (node) {
+          nodesArray.push(node)
+          node.setBoundVariable(propertyToBindableNodeField[data.type][dir], data.variableId);
+        }
+      });
+    }
+    figma.currentPage.selection = nodesArray
+  })
+
   on<ValueSelectHandler>("VALUE_SELECT", (data): void => {
-    const nodesArray = sizingData[data.key][data.type][data.direction].nodes
+    const nodesArray = properties[data.key][data.type][data.direction].nodes
       .map((node) => {
         return figma.getNodeById(node.id);
       })

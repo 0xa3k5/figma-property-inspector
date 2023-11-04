@@ -1,4 +1,4 @@
-import { h } from "preact";
+import { h } from 'preact';
 
 type SVGProps = React.SVGProps<SVGSVGElement>;
 
@@ -22,15 +22,29 @@ export const SelectIcon = (props: SVGProps) => {
   );
 };
 
-export const ChevronUpIcon = (props: SVGProps) => {
+export const VariableIcon = (props: SVGProps) => {
   return (
     <svg
       width="24"
       height="24"
       viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 9.464L12 7.154L16 9.464V14.083L12 16.393L8 14.083V9.464ZM12 6.001L17 8.888V14.661L12 17.548L7 14.661V8.887L12 6V6.001ZM13 11.771C13 12.324 12.552 12.771 12 12.771C11.448 12.771 11 12.324 11 11.771C11 11.219 11.448 10.771 12 10.771C12.552 10.771 13 11.219 13 11.771Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const ChevronUpIcon = (props: SVGProps) => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
         d="M6 14.6072L7.26655 16L12 10.7855L16.7335 16L18 14.6072L12 8L6 14.6072Z"
         fill="currentColor"
@@ -49,10 +63,7 @@ export const PaddingLeftIcon = (props: SVGProps) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path
-        d="M6 18V6H7V18H6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
-        fill="currentColor"
-      />
+      <path d="M6 18V6H7V18H6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
     </svg>
   );
 };
@@ -67,10 +78,7 @@ export const PaddingTopIcon = (props: SVGProps) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path
-        d="M6 6H18V7H6V6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
-        fill="currentColor"
-      />
+      <path d="M6 6H18V7H6V6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
     </svg>
   );
 };
@@ -85,10 +93,7 @@ export const PaddingRightIcon = (props: SVGProps) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path
-        d="M18 6V18H17V6H18ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z"
-        fill="currentColor"
-      />
+      <path d="M18 6V18H17V6H18ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
     </svg>
   );
 };
@@ -103,10 +108,7 @@ export const PaddingBottomIcon = (props: SVGProps) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path
-        d="M9 9H15V15H9V9ZM10 10V14H14V10H10ZM18 18H6V17H18V18Z"
-        fill="currentColor"
-      />
+      <path d="M9 9H15V15H9V9ZM10 10V14H14V10H10ZM18 18H6V17H18V18Z" fill="currentColor" />
     </svg>
   );
 };

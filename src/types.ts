@@ -7,9 +7,21 @@ export interface ResizeWindowHandler extends EventHandler {
 
 export interface UpdatePageDataHandler extends EventHandler {
   name: 'UPDATE_PAGE_DATA'
-  handler: (data: any) => void
+  handler: (properties: PropertyTypeValues) => void
+}
+export interface GetVariablesHandler extends EventHandler {
+  name: 'GET_VARIABLES'
+  handler: (variables: IVariable[]) => void
+}
+export interface GetVariableCollectionsHandler extends EventHandler {
+  name: 'GET_VARIABLE_COLLECTIONS'
+  handler: (variables: IVariableCollection[]) => void
 }
 
+export interface AssignVariableHandler extends Event {
+  name: "ASSIGN_VARIABLE",
+  handler: (data: { variableId: string, key: string, type: PropertyType }) => void
+}
 export interface InspectPageHandler extends EventHandler {
   name: 'INSPECT_PAGE'
   handler: () => void
@@ -32,23 +44,47 @@ export enum PropertyType {
 }
 
 export interface NodeReference {
-    id: string;
+  id: string;
 }
 
 export interface PropertyValue {
-    [direction: string]: {
-      count: number;
-      nodes: NodeReference[]
-    };
+  [direction: string]: {
+    count: number;
+    nodes: NodeReference[]
+  };
 }
 
 export interface PropertyValues {
-    padding: PropertyValue;
-    gap: PropertyValue;
-    stroke: PropertyValue;
-    radius: PropertyValue
+  padding: PropertyValue;
+  gap: PropertyValue;
+  stroke: PropertyValue;
+  radius: PropertyValue
 }
 
 export interface PropertyTypeValues {
-    [key: string]: PropertyValues;
+  [key: string]: PropertyValues;
+}
+
+export interface IVariable {
+  id: string;
+  name: string;
+  key: string;
+  scopes: Array<VariableScope>;
+  valuesByMode: { [modeId: string]: VariableValue };
+  codeSyntax: { [platform in CodeSyntaxPlatform]?: string };
+  description: string;
+  remote: boolean;
+  resolvedType: VariableResolvedDataType;
+  variableCollectionId: string;
+}
+
+
+export interface IVariableCollection {
+  id: string
+  name: string
+  hiddenFromPublishing: boolean
+  modes: Array<{ modeId: string, name: string }>
+  variableIds: string[]
+  defaultModeId: string
+  key: string
 }
