@@ -56,14 +56,17 @@ export const ChevronUpIcon = (props: SVGProps) => {
 export const PaddingLeftIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path d="M6 18V6H7V18H6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
+      <path
+        d="M9.77783 24V8H11.1605V24H9.77783ZM13.926 12H22.2223V20H13.926V12ZM15.3087 13.3333V18.6667H20.8396V13.3333H15.3087Z"
+        fill="currentColor"
+      />
     </svg>
   );
 };
@@ -71,14 +74,17 @@ export const PaddingLeftIcon = (props: SVGProps) => {
 export const PaddingTopIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path d="M6 6H18V7H6V6ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
+      <path
+        d="M8 10H24V11.3333H8V10ZM12 14H20V22H12V14ZM13.3333 15.3333V20.6667H18.6667V15.3333H13.3333Z"
+        fill="currentColor"
+      />
     </svg>
   );
 };
@@ -86,14 +92,17 @@ export const PaddingTopIcon = (props: SVGProps) => {
 export const PaddingRightIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path d="M18 6V18H17V6H18ZM9 9H15V15H9V9ZM10 10V14H14V10H10Z" fill="currentColor" />
+      <path
+        d="M22 8V24H20.6667V8H22ZM10 12H18V20H10V12ZM11.3333 13.3333V18.6667H16.6667V13.3333H11.3333Z"
+        fill="currentColor"
+      />
     </svg>
   );
 };
@@ -101,14 +110,17 @@ export const PaddingRightIcon = (props: SVGProps) => {
 export const PaddingBottomIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path d="M9 9H15V15H9V9ZM10 10V14H14V10H10ZM18 18H6V17H18V18Z" fill="currentColor" />
+      <path
+        d="M12 10H20V18H12V10ZM13.3333 11.3333V16.6667H18.6667V11.3333H13.3333ZM24 22H8V20.6667H24V22Z"
+        fill="currentColor"
+      />
     </svg>
   );
 };
@@ -116,57 +128,57 @@ export const PaddingBottomIcon = (props: SVGProps) => {
 export const StrokeLeftIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
+      <path d="M10 22V10H11V22H10Z" fill="currentColor" />
       <path
-        d="M16.5 18H10V17H16.5C16.776 17 17 16.776 17 16.5V7.5C17 7.224 16.776 7 16.5 7H10V6H16.5C17.328 6 18 6.672 18 7.5V16.5C18 17.328 17.328 18 16.5 18Z"
+        d="M20.5 22H14V21H20.5C20.776 21 21 20.776 21 20.5V11.5C21 11.224 20.776 11 20.5 11H14V10H20.5C21.328 10 22 10.672 22 11.5V20.5C22 21.328 21.328 22 20.5 22Z"
         fill="currentColor"
         fill-opacity="0.3"
       />
-      <path d="M6 18V6H7V18H6Z" fill="currentColor" />
     </svg>
   );
 };
 export const StrokeTopIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
+      <path d="M10 10H22V11H10V10Z" fill="currentColor" />
       <path
-        d="M6 16.5V10H7V16.5C7 16.776 7.224 17 7.5 17H16.5C16.776 17 17 16.776 17 16.5V10H18V16.5C18 17.328 17.328 18 16.5 18H7.5C6.672 18 6 17.328 6 16.5Z"
+        d="M10 20.5V14H11V20.5C11 20.776 11.224 21 11.5 21H20.5C20.776 21 21 20.776 21 20.5V14H22V20.5C22 21.328 21.328 22 20.5 22H11.5C10.672 22 10 21.328 10 20.5Z"
         fill="currentColor"
         fill-opacity="0.3"
       />
-      <path d="M6 6H18V7H6V6Z" fill="currentColor" />
     </svg>
   );
 };
 export const StrokeRightIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
-        d="M7.5 6H14V7H7.5C7.224 7 7 7.224 7 7.5V16.5C7 16.776 7.224 17 7.5 17H14V18H7.5C6.672 18 6 17.328 6 16.5V7.5C6 6.672 6.672 6 7.5 6Z"
+        d="M11.5 10H18V11H11.5C11.224 11 11 11.224 11 11.5V20.5C11 20.776 11.224 21 11.5 21H18V22H11.5C10.672 22 10 21.328 10 20.5V11.5C10 10.672 10.672 10 11.5 10Z"
         fill="currentColor"
         fill-opacity="0.3"
       />
-      <path d="M18 6V18H17V6H18Z" fill="currentColor" />
+      <path d="M22 10V22H21V10H22Z" fill="currentColor" />
     </svg>
   );
 };
@@ -174,53 +186,37 @@ export const StrokeRightIcon = (props: SVGProps) => {
 export const StrokeBottomIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
-        d="M18 7.5V14H17V7.5C17 7.224 16.776 7 16.5 7H7.5C7.224 7 7 7.224 7 7.5V14H6V7.5C6 6.672 6.672 6 7.5 6H16.5C17.328 6 18 6.672 18 7.5Z"
+        d="M22 11.5V18H21V11.5C21 11.224 20.776 11 20.5 11H11.5C11.224 11 11 11.224 11 11.5V18H10V11.5C10 10.672 10.672 10 11.5 10H20.5C21.328 10 22 10.672 22 11.5Z"
         fill="currentColor"
         fill-opacity="0.3"
       />
-      <path d="M18 18H6V17H18V18Z" fill="currentColor" />
+      <path d="M22 22H10V21H22V22Z" fill="currentColor" />
     </svg>
   );
 };
 
-export const GapVerticalIcon = (props: SVGProps) => {
+export const RadiusAllIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
-        d="M17 19V17H7V19H6V16H18V19H17ZM18 9H6V6H7V8H17V6H18V9ZM15 13V12H9V13H15Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
-
-export const GapHorizontalIcon = (props: SVGProps) => {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M18 7H16V17H18V18H15V6H18V7ZM8 6V18H5V17H7V7H5V6H8ZM12 9H11V15H12V9Z"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M10 12.5C10 11.12 11.12 10 12.5 10H14V11H12.5C11.672 11 11 11.672 11 12.5V14H10V12.5ZM18 10H19.5C20.88 10 22 11.12 22 12.5V14H21V12.5C21 11.672 20.328 11 19.5 11H18V10ZM11 18V19.5C11 20.328 11.672 21 12.5 21H14V22H12.5C11.12 22 10 20.88 10 19.5V18H11ZM22 18V19.5C22 20.88 20.88 22 19.5 22H18V21H19.5C20.328 21 21 20.328 21 19.5V18H22Z"
         fill="currentColor"
       />
     </svg>
@@ -230,9 +226,9 @@ export const GapHorizontalIcon = (props: SVGProps) => {
 export const RadiusTopLeftIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -240,7 +236,7 @@ export const RadiusTopLeftIcon = (props: SVGProps) => {
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"
-        d="M6 12.75C6 9.0225 9.0225 6 12.75 6H18V7.5H12.75C9.8505 7.5 7.5 9.8505 7.5 12.75V18H6V12.75Z"
+        d="M10 16.75C10 13.0225 13.0225 10 16.75 10H22V11.5H16.75C13.8505 11.5 11.5 13.8505 11.5 16.75V22H10V16.75Z"
         fill="currentColor"
       />
     </svg>
@@ -250,9 +246,9 @@ export const RadiusTopLeftIcon = (props: SVGProps) => {
 export const RadiusTopRightIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -260,7 +256,7 @@ export const RadiusTopRightIcon = (props: SVGProps) => {
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"
-        d="M18 12.75C18 9.0225 14.9775 6 11.25 6H6V7.5H11.25C14.1495 7.5 16.5 9.8505 16.5 12.75V18H18V12.75Z"
+        d="M22 16.75C22 13.0225 18.9775 10 15.25 10H10V11.5H15.25C18.1495 11.5 20.5 13.8505 20.5 16.75V22H22V16.75Z"
         fill="currentColor"
       />
     </svg>
@@ -270,9 +266,9 @@ export const RadiusTopRightIcon = (props: SVGProps) => {
 export const RadiusBottomLeftIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -280,7 +276,7 @@ export const RadiusBottomLeftIcon = (props: SVGProps) => {
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"
-        d="M6 11.25C6 14.9775 9.0225 18 12.75 18H18V16.5H12.75C9.8505 16.5 7.5 14.1495 7.5 11.25V6H6V11.25Z"
+        d="M10 15.25C10 18.9775 13.0225 22 16.75 22H22V20.5H16.75C13.8505 20.5 11.5 18.1495 11.5 15.25V10H10V15.25Z"
         fill="currentColor"
       />
     </svg>
@@ -290,9 +286,9 @@ export const RadiusBottomLeftIcon = (props: SVGProps) => {
 export const RadiusBottomRightIcon = (props: SVGProps) => {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -300,7 +296,7 @@ export const RadiusBottomRightIcon = (props: SVGProps) => {
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"
-        d="M18 11.25C18 14.9775 14.9775 18 11.25 18H6V16.5H11.25C14.1495 16.5 16.5 14.1495 16.5 11.25V6H18V11.25Z"
+        d="M22 15.25C22 18.9775 18.9775 22 15.25 22H10V20.5H15.25C18.1495 20.5 20.5 18.1495 20.5 15.25V10H22V15.25Z"
         fill="currentColor"
       />
     </svg>

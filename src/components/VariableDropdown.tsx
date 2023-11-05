@@ -66,7 +66,7 @@ const VariableDropdown: FunctionalComponent<VariableDropdownProps> = ({
   return (
     <div class="relative inline-block">
       <button
-        class="inline-flex items-center rounded-md p-1"
+        class="inline-flex items-center rounded-md"
         onClick={() => setSelectedValue(selectedValue === null ? variables[0]?.name : null)}
       >
         <VariableIcon />

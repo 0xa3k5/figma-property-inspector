@@ -4,16 +4,15 @@ import {
   IVariable,
   IVariableCollection,
   PropertyType,
+  PropertyValue,
   PropertyValues,
   ValueSelectHandler,
 } from '../types';
 
 import { emit } from '@create-figma-plugin/utilities';
-import { ChevronUpIcon, SelectIcon, VariableIcon } from '../icons';
 import { getIcon } from '../utils';
 import { useState } from 'react';
-import { Dropdown } from '@create-figma-plugin/ui';
-import DropdownMenu from './DropdownMenu';
+import { IconChevronDown16, IconTarget16 } from '@create-figma-plugin/ui';
 import VariableDropdown from './VariableDropdown';
 
 interface Props {
@@ -61,46 +60,58 @@ export default function ValueDisplay({
     const sectionData = value[section];
 
     return Object.keys(sectionData).length > 0 && visibleProperties[section] ? (
-      <div className="h-full py-3">
-        <div className="flex w-full justify-between pl-4 pr-2">
-          <h6 className="text-[0.25rem] font-normal uppercase tracking-widest">{section}</h6>
-          <div className="flex gap-2">
-            {matchingVariables.length > 0 && (
-              <VariableDropdown
-                propertyKey={propertyKey}
-                propertyType={section}
-                collections={collections}
-                variables={matchingVariables}
-              />
-            )}
-            <button onClick={() => handleSectionToggle(section)}>
-              <ChevronUpIcon
-                className={`${isSectionExpanded[section] ? null : '-rotate-180'} duration-200`}
-              />
-            </button>
-          </div>
+      <div className="h-full w-full py-2 ">
+        <div className="flex w-full justify-between">
+          <button
+            className="inline-flex items-center gap-2"
+            onClick={() => handleSectionToggle(section)}
+          >
+            <IconChevronDown16
+              className={`${isSectionExpanded[section] ? null : '-rotate-90'} duration-200`}
+            />
+            <h6 className="text-[0.25rem] font-normal uppercase tracking-widest">{section}</h6>
+            <span className="flex gap-2 text-xs opacity-60">
+              <span>•</span>
+              <span>
+                ({Object.values(sectionData).reduce(
+                  (sectionTotal, directionData) => sectionTotal + directionData.count,
+                  0
+                )})
+              </span>
+            </span>
+          </button>
+          {matchingVariables.length > 0 && (
+            <VariableDropdown
+              propertyKey={propertyKey}
+              propertyType={section}
+              collections={collections}
+              variables={matchingVariables}
+            />
+          )}
         </div>
         <div className="flex flex-col font-mono">
           {Object.entries(sectionData).map(
-            ([direction, data]) =>
+            ([direction, data], i) =>
               isSectionExpanded[section] && (
-                <div className="flex items-center justify-between duration-200">
-                  <div className="flex items-center gap-2 pl-4 text-sm">
-                    {getIcon(section, direction.toLowerCase())}
-                    {`${section}-${direction.toLowerCase()}`}
-                    <span className="flex gap-1 text-xs opacity-60">
-                      <span>•</span>({data.count})
+                <button
+                  key={i}
+                  className="group flex items-center justify-between py-2 pr-1 duration-200"
+                  onClick={() => handleValueSelect(section, direction)}
+                >
+                  <span className="ml-5 flex items-center gap-2 text-xs opacity-60 group-hover:cursor-pointer group-hover:opacity-100">
+                    <span className="group-hover:cursor-pointer">
+                      {getIcon(section, direction.toLowerCase())}
                     </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleValueSelect(section, direction)}
-                      className="flex justify-center p-2"
-                    >
-                      <SelectIcon />
-                    </button>
-                  </div>
-                </div>
+                    <span className="group-hover:cursor-pointer">{`${section}-${direction.toLowerCase()}`}</span>
+                    <span className="flex gap-1 text-xs opacity-60">
+                      <span>•</span>
+                      <span>({data.count})</span>
+                    </span>
+                  </span>
+                  <span className="flex justify-center opacity-0 duration-100 hover:cursor-pointer group-hover:opacity-100">
+                    <IconTarget16 />
+                  </span>
+                </button>
               )
           )}
         </div>
@@ -119,9 +130,12 @@ export default function ValueDisplay({
         className="col-span-1 flex items-start gap-2 py-4"
         style={{ borderRight: '1px solid var(--figma-color-border)' }}
       >
-        <div className="sticky top-14 flex items-baseline gap-2">
-          <h1 className="text-sm font-bold">{propertyKey.slice(0, 6)} px</h1>
-          <span className="text-xs opacity-60"> • ({totalCount})</span>
+        <div className="sticky top-14 flex flex-wrap items-baseline gap-1 font-mono">
+          <h1 className="text-sm font-semibold">{propertyKey.slice(0, 6)}px</h1>
+          <span className="flex gap-1 text-xs opacity-60">
+            <span>•</span>
+            <span>({totalCount})</span>
+          </span>
         </div>
       </div>
       <div className="col-span-3 flex flex-col gap-2 py-2">

@@ -46,11 +46,9 @@ function Plugin() {
     }
     function handleGetVariables(data: IVariable[]) {
       setVariables(data);
-      console.log(data);
     }
 
     function handleGetVariableCollections(data: IVariableCollection[]) {
-      console.log('collections:', data);
       setVariableCollections(data);
     }
 

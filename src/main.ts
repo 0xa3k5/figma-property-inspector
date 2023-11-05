@@ -62,10 +62,27 @@ const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
   if (isAutoLayout) {
     const { paddingLeft, paddingTop, paddingRight, paddingBottom, itemSpacing } = node;
 
-    processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
-    processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
-    processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
-    processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
+    const isHorizontal = paddingLeft === paddingRight;
+    const isVertical = paddingTop === paddingBottom;
+
+    if (isHorizontal && isVertical) {
+      processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
+    } else if (isHorizontal) {
+      processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
+    } else if (isVertical) {
+      processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
+    } else {
+      processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
+      processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
+    }
+
     processPropertyValue(node, itemSpacing, node.layoutMode, PropertyType.GAP, sizingData);
   }
 
@@ -81,10 +98,14 @@ const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
   if (hasCornerRadius) {
     const { topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius } = node;
 
-    processPropertyValue(node, topLeftRadius, "top-left", PropertyType.RADIUS, sizingData);
-    processPropertyValue(node, topRightRadius, "top-right", PropertyType.RADIUS, sizingData);
-    processPropertyValue(node, bottomLeftRadius, "bottom-left", PropertyType.RADIUS, sizingData);
-    processPropertyValue(node, bottomRightRadius, "bottom-right", PropertyType.RADIUS, sizingData);
+    if (topLeftRadius === topRightRadius && bottomLeftRadius === bottomRightRadius) {
+      processPropertyValue(node, topLeftRadius, "all", PropertyType.RADIUS, sizingData);
+    } else {
+      processPropertyValue(node, topLeftRadius, "top-left", PropertyType.RADIUS, sizingData);
+      processPropertyValue(node, topRightRadius, "top-right", PropertyType.RADIUS, sizingData);
+      processPropertyValue(node, bottomLeftRadius, "bottom-left", PropertyType.RADIUS, sizingData);
+      processPropertyValue(node, bottomRightRadius, "bottom-right", PropertyType.RADIUS, sizingData);
+    }
   }
 };
 
@@ -156,6 +177,20 @@ const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
     });
   }
 };
+let properties: PropertyTypeValues = {}
+const handleInspectPage = () => {
+  properties = {};
+  const nodeData = figma.currentPage.children;
+
+  nodeData.forEach((node) => {
+    inspectNode(node, properties);
+  });
+
+  figma.notify(`Inspected: ${figma.currentPage.name}`);
+  emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
+  emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
+  emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
+}
 
 export default function (): void {
   on<ResizeWindowHandler>(
@@ -166,26 +201,21 @@ export default function (): void {
     }
   );
 
-  let properties: PropertyTypeValues = {};
-
   on<InspectPageHandler>("INSPECT_PAGE", function (): void {
     properties = {};
     const nodeData = figma.currentPage.children;
-    const variables = getFloatVariables();
-    const variableCollections = getVariableCollections()
 
     nodeData.forEach((node) => {
       inspectNode(node, properties);
     });
 
     figma.notify(`Inspected: ${figma.currentPage.name}`);
-    emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", variableCollections)
-    emit<GetVariablesHandler>("GET_VARIABLES", variables);
+    emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
+    emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
     emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
   });
 
   on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
-    const variables = getFloatVariables();
     properties = {};
     const selectedNodes = figma.currentPage.selection;
 
@@ -201,6 +231,8 @@ export default function (): void {
       );
     }
 
+    emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
+    emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
     emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
   });
 
@@ -208,7 +240,6 @@ export default function (): void {
     const nodesArray: SceneNode[] = [];
 
     for (const dir of Object.keys(properties[data.key][data.type])) {
-      console.log(dir)
       const nodesForDirection = properties[data.key][data.type][dir]?.nodes || [];
       nodesForDirection.forEach((nodeData) => {
         const node = figma.getNodeById(nodeData.id) as SceneNode;

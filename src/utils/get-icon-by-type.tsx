@@ -1,11 +1,9 @@
-import { h } from "preact";
+import { h } from 'preact';
 import {
   PaddingTopIcon,
   PaddingBottomIcon,
   PaddingLeftIcon,
   PaddingRightIcon,
-  GapVerticalIcon,
-  GapHorizontalIcon,
   StrokeLeftIcon,
   StrokeTopIcon,
   StrokeRightIcon,
@@ -14,54 +12,68 @@ import {
   RadiusTopRightIcon,
   RadiusBottomLeftIcon,
   RadiusBottomRightIcon,
-} from "../icons";
-import { PropertyType } from "../types";
+  RadiusAllIcon,
+} from '../icons';
+import { PropertyType } from '../types';
+import {
+  IconCornerRadius32,
+  IconPaddingHorizontal32,
+  IconPaddingVertical32,
+  IconSpacingHorizontal32,
+  IconSpacingVertical32,
+} from '@create-figma-plugin/ui';
 
 export const getIcon = (type: PropertyType, direction: string) => {
-  if (type === "padding") {
+  if (type === 'padding') {
     switch (direction) {
-      case "top":
+      case 'top':
         return <PaddingTopIcon />;
-      case "bottom":
+      case 'bottom':
         return <PaddingBottomIcon />;
-      case "left":
+      case 'left':
         return <PaddingLeftIcon />;
-      case "right":
+      case 'right':
         return <PaddingRightIcon />;
+      case 'vertical':
+        return <IconPaddingVertical32 width={24} height={24} />;
+      case 'horizontal':
+        return <IconPaddingHorizontal32 width={24} height={24} />;
 
       default:
         break;
     }
-  } else if (type === "gap") {
+  } else if (type === 'gap') {
     switch (direction) {
-      case "vertical":
-        return <GapVerticalIcon />;
-      case "horizontal":
-        return <GapHorizontalIcon />;
+      case 'vertical':
+        return <IconSpacingVertical32 width={24} height={24} />;
+      case 'horizontal':
+        return <IconSpacingHorizontal32 width={24} height={24} />;
       default:
         break;
     }
-  } else if (type === "stroke") {
+  } else if (type === 'stroke') {
     switch (direction) {
-      case "left":
+      case 'left':
         return <StrokeLeftIcon />;
-      case "top":
+      case 'top':
         return <StrokeTopIcon />;
-      case "right":
+      case 'right':
         return <StrokeRightIcon />;
-      case "bottom":
+      case 'bottom':
         return <StrokeBottomIcon />;
     }
-  } else if (type === "radius") {
+  } else if (type === 'radius') {
     switch (direction) {
-      case "top-left":
+      case 'top-left':
         return <RadiusTopLeftIcon />;
-      case "top-right":
+      case 'top-right':
         return <RadiusTopRightIcon />;
-      case "bottom-left":
+      case 'bottom-left':
         return <RadiusBottomLeftIcon />;
-      case "bottom-right":
+      case 'bottom-right':
         return <RadiusBottomRightIcon />;
+      case 'all':
+        return <RadiusAllIcon />;
     }
   }
 };
