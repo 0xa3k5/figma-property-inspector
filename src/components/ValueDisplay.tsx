@@ -1,25 +1,17 @@
 import { h } from 'preact';
-import {
-  AssignVariableHandler,
-  IVariable,
-  IVariableCollection,
-  PropertyType,
-  PropertyValue,
-  PropertyValues,
-  ValueSelectHandler,
-} from '../types';
+import { IVariable, IVariableCollection, PropertyType, PropertyValues } from '../types';
 
 import { emit } from '@create-figma-plugin/utilities';
 import { getIcon } from '../utils';
 import { useState } from 'react';
 import { IconChevronDown16, IconTarget16 } from '@create-figma-plugin/ui';
 import VariableDropdown from './VariableDropdown';
+import { handleValueSelect } from '../utils/event-handlers';
 
 interface Props {
   propertyKey: string;
   totalCount: number;
   value: PropertyValues;
-  visibleProperties: { [k: string]: boolean };
   variables: IVariable[];
   collections: IVariableCollection[];
 }
@@ -28,21 +20,12 @@ export default function ValueDisplay({
   propertyKey,
   totalCount,
   value,
-  visibleProperties,
   variables,
   collections,
 }: Props): JSX.Element {
   const [isSectionExpanded, setIsSectionExpanded] = useState<{
     [propertyType: string]: boolean;
   }>(Object.fromEntries(Object.values(PropertyType).map((type) => [type, true])));
-
-  const handleValueSelect = (section: PropertyType, direction: string) => {
-    emit<ValueSelectHandler>('VALUE_SELECT', {
-      key: propertyKey,
-      type: section,
-      direction: direction,
-    });
-  };
 
   const handleSectionToggle = (propertyType: PropertyType) => {
     setIsSectionExpanded((prevState) => ({
@@ -59,8 +42,8 @@ export default function ValueDisplay({
   const renderValueSection = (section: PropertyType) => {
     const sectionData = value[section];
 
-    return Object.keys(sectionData).length > 0 && visibleProperties[section] ? (
-      <div className="h-full w-full py-2 ">
+    return Object.keys(sectionData).length > 0 ? (
+      <div className="h-full w-full py-2 pl-2">
         <div className="flex w-full justify-between">
           <button
             className="inline-flex items-center gap-2"
@@ -73,10 +56,12 @@ export default function ValueDisplay({
             <span className="flex gap-2 text-xs opacity-60">
               <span>•</span>
               <span>
-                ({Object.values(sectionData).reduce(
+                (
+                {Object.values(sectionData).reduce(
                   (sectionTotal, directionData) => sectionTotal + directionData.count,
                   0
-                )})
+                )}
+                )
               </span>
             </span>
           </button>
@@ -96,9 +81,9 @@ export default function ValueDisplay({
                 <button
                   key={i}
                   className="group flex items-center justify-between py-2 pr-1 duration-200"
-                  onClick={() => handleValueSelect(section, direction)}
+                  onClick={() => handleValueSelect(propertyKey, section, direction)}
                 >
-                  <span className="ml-5 flex items-center gap-2 text-xs opacity-60 group-hover:cursor-pointer group-hover:opacity-100">
+                  <span className="ml-4 flex items-center gap-2 text-xs opacity-60 group-hover:cursor-pointer group-hover:opacity-100">
                     <span className="group-hover:cursor-pointer">
                       {getIcon(section, direction.toLowerCase())}
                     </span>

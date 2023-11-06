@@ -16,7 +16,6 @@ import {
 } from '../icons';
 import { PropertyType } from '../types';
 import {
-  IconCornerRadius32,
   IconPaddingHorizontal32,
   IconPaddingVertical32,
   IconSpacingHorizontal32,

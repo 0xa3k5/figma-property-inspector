@@ -1,5 +1,5 @@
 import '!./output.css';
-import { Toggle, Container, render, useWindowResize, Text } from '@create-figma-plugin/ui';
+import { Container, render, useWindowResize, TabsOption } from '@create-figma-plugin/ui';
 import { emit, on } from '@create-figma-plugin/utilities';
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
@@ -13,10 +13,10 @@ import {
   GetVariableCollectionsHandler,
   IVariable,
   IVariableCollection,
+  ETabs,
 } from './types';
-import ValueDisplay from './components/ValueDisplay';
-import Footer from './components/Footer';
-import BarChart from './components/BarChart';
+import TabInspect from './components/Tabs/TabInspect';
+import TabBar from './components/Tabs/TabBar';
 
 function Plugin() {
   const [pageData, setPageData] = useState<PropertyTypeValues | null>(null);
@@ -24,9 +24,11 @@ function Plugin() {
   const [keyUsageCounts, setKeyUsageCounts] = useState<{ [key: string]: number }>({});
   const [variableCollections, setVariableCollections] = useState<IVariableCollection[]>([]);
 
-  const [propertyVisibility, setPropertyVisibility] = useState(
-    Object.fromEntries(Object.values(PropertyType).map((type) => [type, true]))
-  );
+  // const [propertyVisibility, setPropertyVisibility] = useState(
+  //   Object.fromEntries(Object.values(PropertyType).map((type) => [type, true]))
+  // );
+
+  const [activeTab, setActiveTab] = useState<ETabs>(ETabs.INSPECT);
 
   function onWindowResize(windowSize: { width: number; height: number }) {
     emit<ResizeWindowHandler>('RESIZE_WINDOW', windowSize);
@@ -44,17 +46,12 @@ function Plugin() {
       setPageData(properties);
       countKeyUsage(properties);
     }
-    function handleGetVariables(data: IVariable[]) {
-      setVariables(data);
-    }
-
-    function handleGetVariableCollections(data: IVariableCollection[]) {
-      setVariableCollections(data);
-    }
 
     on<UpdatePageDataHandler>('UPDATE_PAGE_DATA', handleUpdatePageData);
-    on<GetVariablesHandler>('GET_VARIABLES', handleGetVariables);
-    on<GetVariableCollectionsHandler>('GET_VARIABLE_COLLECTIONS', handleGetVariableCollections);
+    on<GetVariablesHandler>('GET_VARIABLES', (data) => setVariables(data));
+    on<GetVariableCollectionsHandler>('GET_VARIABLE_COLLECTIONS', (data) =>
+      setVariableCollections(data)
+    );
   }, []);
 
   const countKeyUsage = (data: PropertyTypeValues) => {
@@ -71,61 +68,19 @@ function Plugin() {
     setKeyUsageCounts(keyCounts);
   };
 
-  const isObjectEmpty = (obj: object) => {
-    return Object.keys(obj).length === 0;
-  };
-
-  if (!pageData || isObjectEmpty(pageData)) {
-    return (
-      <div className="">
-        <div className="flex h-full w-full items-center justify-center">null</div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <Container space="medium">
-      <div
-        className="fixed left-0 right-0 top-0 z-10 flex items-center justify-between gap-4 p-4"
-        style={{
-          borderBottom: '1px solid var(--figma-color-border)',
-          backgroundColor: 'var(--figma-color-bg)',
-        }}
-      >
-        {Object.values(PropertyType).map((type) => (
-          <Toggle
-            key={type}
-            value={propertyVisibility[type]}
-            onChange={() => {
-              setPropertyVisibility((prevVisibility) => ({
-                ...prevVisibility,
-                [type]: !prevVisibility[type],
-              }));
-            }}
-          >
-            <Text>{type}</Text>
-          </Toggle>
-        ))}
+      <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="mt-16">
+        {activeTab === ETabs.INSPECT && (
+          <TabInspect
+            pageData={pageData}
+            keyUsageCounts={keyUsageCounts}
+            variableCollections={variableCollections}
+            variables={variables}
+          />
+        )}
       </div>
-      <div className="my-12">
-        <BarChart pageData={pageData} rawData={keyUsageCounts} title="" />
-        {Object.entries(pageData).map(([key, value]) => {
-          return (
-            <div key={key}>
-              <ValueDisplay
-                propertyKey={key}
-                totalCount={keyUsageCounts[key]}
-                value={value}
-                visibleProperties={propertyVisibility}
-                variables={variables}
-                collections={variableCollections}
-              />
-            </div>
-          );
-        })}
-      </div>
-      <Footer />
     </Container>
   );
 }

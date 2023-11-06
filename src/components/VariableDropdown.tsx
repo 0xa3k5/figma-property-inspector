@@ -1,9 +1,9 @@
 import { h, FunctionalComponent } from 'preact';
 import { useState } from 'preact/hooks';
-import { AssignVariableHandler, IVariable, IVariableCollection, PropertyType } from '../types';
+import { IVariable, IVariableCollection, PropertyType } from '../types';
 import { VariableIcon } from '../icons';
 import { IconLayerFrame16 } from '@create-figma-plugin/ui';
-import { emit } from '@create-figma-plugin/utilities';
+import { handleAssignVariable } from '../utils/event-handlers';
 
 interface VariableDropdownProps {
   collections: IVariableCollection[];
@@ -19,14 +19,6 @@ const VariableDropdown: FunctionalComponent<VariableDropdownProps> = ({
   propertyKey,
 }: VariableDropdownProps) => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-
-  const handleVariableClick = (variable: IVariable) => {
-    emit<AssignVariableHandler>('ASSIGN_VARIABLE', {
-      variableId: variable.id,
-      key: propertyKey,
-      type: propertyType,
-    });
-  };
 
   const groupedVariables: { [collectionId: string]: IVariable[] } = variables.reduce(
     (acc, variable) => {
@@ -51,7 +43,7 @@ const VariableDropdown: FunctionalComponent<VariableDropdownProps> = ({
       options.push(
         <button
           className="flex w-full justify-between py-2 pl-1 pr-2 text-left"
-          onClick={() => handleVariableClick(variable)}
+          onClick={() => handleAssignVariable(propertyKey, propertyType, variable)}
         >
           <span className="flex gap-2">
             <IconLayerFrame16 />

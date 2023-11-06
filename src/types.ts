@@ -43,6 +43,10 @@ export enum PropertyType {
   RADIUS = 'radius'
 }
 
+export enum ETabs {
+  INSPECT = 'inspect',
+}
+
 export interface NodeReference {
   id: string;
 }
