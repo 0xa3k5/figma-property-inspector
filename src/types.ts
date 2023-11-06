@@ -45,6 +45,7 @@ export enum PropertyType {
 
 export enum ETabs {
   INSPECT = 'inspect',
+  AUTOFIX = 'auto-fix'
 }
 
 export interface NodeReference {

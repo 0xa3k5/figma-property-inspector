@@ -4,7 +4,6 @@ import {
   ResizeWindowHandler,
   PropertyTypeValues,
   UpdatePageDataHandler,
-  InspectSelectionHandler,
   PropertyType,
   ValueSelectHandler,
   GetVariablesHandler,
@@ -16,12 +15,12 @@ import {
 
 const processPropertyValue = (
   node: SceneNode,
-  propValue: number | undefined,
+  propValue: number,
   direction: string,
   type: PropertyType,
   sizingData: PropertyTypeValues
 ) => {
-  if (propValue !== undefined && propValue > 0) {
+  if (propValue > 0) {
     const key = propValue.toString();
     if (!sizingData[key]) {
       sizingData[key] = { padding: {}, gap: {}, stroke: {}, radius: {} };
@@ -34,29 +33,31 @@ const processPropertyValue = (
   }
 };
 
-const propertyToBindableNodeField: { [key: string]: { [direction: string]: VariableBindableNodeField } } = {
+const propertyToBindableNodeField: { [key: string]: { [direction: string]: VariableBindableNodeField[] } } = {
   padding: {
-    left: 'paddingLeft',
-    right: 'paddingRight',
-    top: 'paddingTop',
-    bottom: 'paddingBottom',
+    left: ['paddingLeft'],
+    right: ['paddingRight'],
+    top: ['paddingTop'],
+    bottom: ['paddingBottom'],
+    vertical: ['paddingTop', 'paddingBottom'],
+    horizontal: ['paddingLeft', 'paddingRight']
   },
   radius: {
-    'bottom-left': 'bottomLeftRadius',
-    'bottom-right': 'bottomRightRadius',
-    'top-left': 'topLeftRadius',
-    'top-right': 'topRightRadius',
+    'bottom-left': ['bottomLeftRadius'],
+    'bottom-right': ['bottomRightRadius'],
+    'top-left': ['topLeftRadius'],
+    'top-right': ['topRightRadius'],
+    'all': ['bottomLeftRadius', 'bottomRightRadius', 'topLeftRadius', 'topRightRadius']
   },
   gap: {
-    'HORIZONTAL': 'itemSpacing',
-    'VERTICAL': 'itemSpacing'
+    'HORIZONTAL': ['itemSpacing'],
+    'VERTICAL': ['itemSpacing']
   }
 };
 
-
 const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
   const isAutoLayout = "layoutMode" in node && node.layoutMode !== 'NONE' && node.primaryAxisAlignItems !== "SPACE_BETWEEN";
-  const hasStroke = "strokes" in node && node.strokes.length > 0 && "strokeLeftWeight" in node;
+  // const hasStroke = "strokes" in node && node.strokes.length > 0 && "strokeLeftWeight" in node;
   const hasCornerRadius = "cornerRadius" in node && "topLeftRadius" in node;
 
   if (isAutoLayout) {
@@ -65,48 +66,54 @@ const processValues = (node: SceneNode, sizingData: PropertyTypeValues) => {
     const isHorizontal = paddingLeft === paddingRight;
     const isVertical = paddingTop === paddingBottom;
 
+    const hasVerticalVariable = isVertical && node.boundVariables?.paddingTop && node.boundVariables.paddingBottom;
+    const hasHorizontalVariable = isHorizontal && node.boundVariables?.paddingRight && node.boundVariables.paddingLeft;
+
     if (isHorizontal && isVertical) {
-      processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
+      hasHorizontalVariable ?? processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
+      hasVerticalVariable ?? processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
     } else if (isHorizontal) {
-      processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
+      hasHorizontalVariable ?? processPropertyValue(node, paddingLeft, "horizontal", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingTop ?? processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingBottom ?? processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
     } else if (isVertical) {
-      processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
+      hasVerticalVariable ?? processPropertyValue(node, paddingTop, "vertical", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingLeft ?? processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingRight ?? processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
     } else {
-      processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
-      processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingLeft ?? processPropertyValue(node, paddingLeft, "left", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingTop ?? processPropertyValue(node, paddingTop, "top", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingRight ?? processPropertyValue(node, paddingRight, "right", PropertyType.PADDING, sizingData);
+      node.boundVariables?.paddingBottom ?? processPropertyValue(node, paddingBottom, "bottom", PropertyType.PADDING, sizingData);
     }
 
-    processPropertyValue(node, itemSpacing, node.layoutMode, PropertyType.GAP, sizingData);
-  }
-
-  if (hasStroke) {
-    const { strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight } = node;
-
-    processPropertyValue(node, strokeLeftWeight, "left", PropertyType.STROKE, sizingData);
-    processPropertyValue(node, strokeTopWeight, "top", PropertyType.STROKE, sizingData);
-    processPropertyValue(node, strokeRightWeight, "right", PropertyType.STROKE, sizingData);
-    processPropertyValue(node, strokeBottomWeight, "bottom", PropertyType.STROKE, sizingData);
+    node.boundVariables?.itemSpacing ?? processPropertyValue(node, itemSpacing, node.layoutMode, PropertyType.GAP, sizingData);
   }
 
   if (hasCornerRadius) {
     const { topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius } = node;
 
-    if (topLeftRadius === topRightRadius && bottomLeftRadius === bottomRightRadius) {
-      processPropertyValue(node, topLeftRadius, "all", PropertyType.RADIUS, sizingData);
+    const isAllRadius = topLeftRadius === topRightRadius && bottomLeftRadius === bottomRightRadius
+    const hasAllVariable = isAllRadius && node.boundVariables?.bottomLeftRadius && node.boundVariables.bottomRightRadius && node.boundVariables.topLeftRadius && node.boundVariables.topRightRadius
+
+    if (isAllRadius) {
+      hasAllVariable ?? processPropertyValue(node, topLeftRadius, "all", PropertyType.RADIUS, sizingData);
     } else {
-      processPropertyValue(node, topLeftRadius, "top-left", PropertyType.RADIUS, sizingData);
-      processPropertyValue(node, topRightRadius, "top-right", PropertyType.RADIUS, sizingData);
-      processPropertyValue(node, bottomLeftRadius, "bottom-left", PropertyType.RADIUS, sizingData);
-      processPropertyValue(node, bottomRightRadius, "bottom-right", PropertyType.RADIUS, sizingData);
+      node.boundVariables?.topLeftRadius ?? processPropertyValue(node, topLeftRadius, "top-left", PropertyType.RADIUS, sizingData);
+      node.boundVariables?.topRightRadius ?? processPropertyValue(node, topRightRadius, "top-right", PropertyType.RADIUS, sizingData);
+      node.boundVariables?.bottomLeftRadius ?? processPropertyValue(node, bottomLeftRadius, "bottom-left", PropertyType.RADIUS, sizingData);
+      node.boundVariables?.bottomRightRadius ?? processPropertyValue(node, bottomRightRadius, "bottom-right", PropertyType.RADIUS, sizingData);
     }
   }
+
+  // if (hasStroke) {
+  //   const { strokeLeftWeight, strokeRightWeight, strokeTopWeight, strokeBottomWeight } = node;
+
+  //   processPropertyValue(node, strokeLeftWeight, "left", PropertyType.STROKE, sizingData);
+  //   processPropertyValue(node, strokeTopWeight, "top", PropertyType.STROKE, sizingData);
+  //   processPropertyValue(node, strokeRightWeight, "right", PropertyType.STROKE, sizingData);
+  //   processPropertyValue(node, strokeBottomWeight, "bottom", PropertyType.STROKE, sizingData);
+  // }
 };
 
 const updateSizingData = (
@@ -168,6 +175,7 @@ const getVariableCollections = (): IVariableCollection[] => {
 
 const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
   const nodeSizingData: PropertyTypeValues = {};
+
   processValues(node, sizingData);
   updateSizingData(nodeSizingData, sizingData);
 
@@ -177,7 +185,9 @@ const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
     });
   }
 };
+
 let properties: PropertyTypeValues = {}
+
 const handleInspectPage = () => {
   properties = {};
   const nodeData = figma.currentPage.children;
@@ -201,35 +211,13 @@ export default function (): void {
     }
   );
 
-  on<InspectPageHandler>("INSPECT_PAGE", function (): void {
+  on<InspectPageHandler>("INSPECT_PAGE", (): void => {
     properties = {};
     const nodeData = figma.currentPage.children;
 
     nodeData.forEach((node) => {
       inspectNode(node, properties);
     });
-
-    figma.notify(`Inspected: ${figma.currentPage.name}`);
-    emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
-    emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
-    emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
-  });
-
-  on<InspectSelectionHandler>("INSPECT_SELECTION", function (): void {
-    properties = {};
-    const selectedNodes = figma.currentPage.selection;
-
-    if (selectedNodes.length === 0) {
-      figma.notify("Select a node to start");
-    } else {
-      selectedNodes.forEach((node) => {
-        inspectNode(node, properties);
-      });
-      figma.notify(
-        `Inspected: ${selectedNodes.length} ${selectedNodes.length > 0 ? "nodes" : "node"
-        }`
-      );
-    }
 
     emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
     emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
@@ -245,11 +233,15 @@ export default function (): void {
         const node = figma.getNodeById(nodeData.id) as SceneNode;
         if (node) {
           nodesArray.push(node)
-          node.setBoundVariable(propertyToBindableNodeField[data.type][dir], data.variableId);
+          const fields = propertyToBindableNodeField[data.type][dir]
+
+          fields.map((field) => {
+            node.setBoundVariable(field, data.variableId);
+          })
         }
+        figma.currentPage.selection = nodesArray
       });
     }
-    figma.currentPage.selection = nodesArray
   })
 
   on<ValueSelectHandler>("VALUE_SELECT", (data): void => {
@@ -263,8 +255,11 @@ export default function (): void {
     figma.viewport.scrollAndZoomIntoView(nodesArray);
   });
 
+  figma.on('run', () => handleInspectPage())
+  figma.on('currentpagechange', () => handleInspectPage());
+
   showUI({
+    width: 420,
     height: 512,
-    width: 512,
   });
 }

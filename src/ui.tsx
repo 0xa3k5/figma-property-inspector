@@ -17,6 +17,7 @@ import {
 } from './types';
 import TabInspect from './components/Tabs/TabInspect';
 import TabBar from './components/Tabs/TabBar';
+import TabAutoFix from './components/Tabs/TabAutoFix';
 
 function Plugin() {
   const [pageData, setPageData] = useState<PropertyTypeValues | null>(null);
@@ -80,6 +81,7 @@ function Plugin() {
             variables={variables}
           />
         )}
+        {activeTab === ETabs.AUTOFIX && <TabAutoFix pageData={pageData} variables={variables} />}
       </div>
     </Container>
   );
