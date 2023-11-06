@@ -17,6 +17,7 @@ import {
 } from './types';
 import TabInspect from './components/Tabs/TabInspect';
 import TabBar from './components/Tabs/TabBar';
+import TabVariables from './components/Tabs/TabVariables';
 import TabAutoFix from './components/Tabs/TabAutoFix';
 
 function Plugin() {

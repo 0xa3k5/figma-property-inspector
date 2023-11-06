@@ -11,8 +11,13 @@ export const handleValueSelect = (key: string, type: PropertyType, direction: st
   emit<ValueSelectHandler>('VALUE_SELECT', { key, type, direction });
 };
 
-export const handleAssignVariable = (key: string, type: PropertyType, variable: IVariable) => {
-  emit<AssignVariableHandler>('ASSIGN_VARIABLE', { variableId: variable.id, key, type });
+export const handleAssignVariable = (
+  key: string,
+  type: PropertyType,
+  variable: IVariable,
+  direction?: string
+) => {
+  emit<AssignVariableHandler>('ASSIGN_VARIABLE', { variableId: variable.id, key, type, direction: direction ?? undefined });
   emit<InspectPageHandler>('INSPECT_PAGE');
 };
 

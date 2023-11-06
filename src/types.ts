@@ -20,7 +20,7 @@ export interface GetVariableCollectionsHandler extends EventHandler {
 
 export interface AssignVariableHandler extends Event {
   name: "ASSIGN_VARIABLE",
-  handler: (data: { variableId: string, key: string, type: PropertyType }) => void
+  handler: (data: { variableId: string, key: string, type: PropertyType, direction?: string }) => void
 }
 export interface InspectPageHandler extends EventHandler {
   name: 'INSPECT_PAGE'
@@ -34,6 +34,11 @@ export interface InspectSelectionHandler extends EventHandler {
 export interface ValueSelectHandler extends EventHandler {
   name: 'VALUE_SELECT'
   handler: (data: { key: string, direction: string; type: PropertyType }) => void;
+}
+
+export interface IncludeVariableValuesHandler extends EventHandler {
+  name: 'INCLUDE_VARIABLES_TOGGLE'
+  handler: () => void
 }
 
 export enum PropertyType {

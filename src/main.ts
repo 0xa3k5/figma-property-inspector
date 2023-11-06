@@ -20,6 +20,9 @@ const processPropertyValue = (
   type: PropertyType,
   sizingData: PropertyTypeValues
 ) => {
+
+  // todo: boundVariable Check
+
   if (propValue > 0) {
     const key = propValue.toString();
     if (!sizingData[key]) {
@@ -227,7 +230,7 @@ export default function (): void {
   on<AssignVariableHandler>("ASSIGN_VARIABLE", (data): void => {
     const nodesArray: SceneNode[] = [];
 
-    for (const dir of Object.keys(properties[data.key][data.type])) {
+    const assignVariable = (dir: string) => {
       const nodesForDirection = properties[data.key][data.type][dir]?.nodes || [];
       nodesForDirection.forEach((nodeData) => {
         const node = figma.getNodeById(nodeData.id) as SceneNode;
@@ -242,6 +245,17 @@ export default function (): void {
         figma.currentPage.selection = nodesArray
       });
     }
+
+    // assign to given direction
+    if (data.direction !== undefined) {
+      assignVariable(data.direction)
+    } else {
+      // assign to all directions
+      for (const dir of Object.keys(properties[data.key][data.type])) {
+        assignVariable(dir)
+      }
+    }
+
   })
 
   on<ValueSelectHandler>("VALUE_SELECT", (data): void => {

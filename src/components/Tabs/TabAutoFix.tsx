@@ -19,6 +19,29 @@ interface IMatchingVariable {
   direction: string;
 }
 
+function findAllowedProperties(variable: IVariable): string[] {
+  const allowedPropertyTypes: PropertyType[] = [];
+  const hasVariableScopes = variable.scopes.length > 0;
+
+  if (hasVariableScopes) {
+    // all
+    if (variable.scopes.includes('ALL_SCOPES')) {
+      Object.values(PropertyType).map((type) => allowedPropertyTypes.push(type));
+    }
+    // can assign to radius
+    if (variable.scopes.includes('CORNER_RADIUS')) {
+      allowedPropertyTypes.push(PropertyType.RADIUS);
+    }
+    // can assign padding & gap
+    if (variable.scopes.includes('GAP')) {
+      allowedPropertyTypes.push(PropertyType.GAP);
+      allowedPropertyTypes.push(PropertyType.PADDING);
+    }
+  }
+
+  return allowedPropertyTypes;
+}
+
 export default function TabAutoFix({ pageData, variables }: AutoFixTabProps): JSX.Element {
   const [matchingVariables, setMatchingVariables] = useState<IMatchingVariable[]>([]);
 
@@ -33,20 +56,24 @@ export default function TabAutoFix({ pageData, variables }: AutoFixTabProps): JS
 
       for (const variable of variables) {
         const variableModeValues = Object.values(variable.valuesByMode);
+
         if (variableModeValues.length > 0) {
           const value = variableModeValues[0].toString();
           if (pageData[value]) {
             const propertyTypes = Object.keys(pageData[value]);
             for (const propertyType of propertyTypes) {
-              const directions = Object.keys(pageData[value][propertyType as PropertyType]);
-              directions.map((direction) => {
-                assignableVariables.push({
-                  propertyKey: value,
-                  variable,
-                  propertyType: propertyType as PropertyType,
-                  direction,
+              const allowedPropertyTypes = findAllowedProperties(variable);
+              if (allowedPropertyTypes.includes(propertyType as PropertyType)) {
+                const directions = Object.keys(pageData[value][propertyType as PropertyType]);
+                directions.map((direction) => {
+                  assignableVariables.push({
+                    propertyKey: value,
+                    variable,
+                    propertyType: propertyType as PropertyType,
+                    direction,
+                  });
                 });
-              });
+              }
             }
           }
         }
@@ -90,7 +117,6 @@ export default function TabAutoFix({ pageData, variables }: AutoFixTabProps): JS
   }
 
   // no appliable fixes
-  console.log(Object.entries(groupedByVariables));
   if (Object.entries(groupedByVariables).length === 0) {
     return (
       <div className="flex h-full w-full items-center justify-center pb-24">
@@ -106,9 +132,9 @@ export default function TabAutoFix({ pageData, variables }: AutoFixTabProps): JS
 
   return (
     <div className="flex flex-col gap-2">
-      {Object.entries(groupedByVariables).map(([propertyKey, cardVariables]) => (
-        <AutofixCard propertyKey={propertyKey} cardVariables={cardVariables} />
-      ))}
+      {Object.entries(groupedByVariables).map(([propertyKey, cardVariables]) => {
+        return <AutofixCard propertyKey={propertyKey} cardVariables={cardVariables} />;
+      })}
     </div>
   );
 }
@@ -119,7 +145,7 @@ interface ChildProps {
 }
 
 function AutofixCard({ propertyKey, cardVariables }: ChildProps): h.JSX.Element {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div
@@ -135,7 +161,11 @@ function AutofixCard({ propertyKey, cardVariables }: ChildProps): h.JSX.Element 
             <span className="text-lg">{propertyKey}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold">{cardVariables[0].variable.name}</span>
+            <span className="text-sm font-semibold">
+              {Array.from(new Set(cardVariables.map((variable) => variable.variable.name))).join(
+                ', '
+              )}
+            </span>
             <button
               className="w-fit text-xs opacity-60 hover:opacity-100"
               onClick={() => setIsExpanded(!isExpanded)}
@@ -176,7 +206,9 @@ function AutofixCard({ propertyKey, cardVariables }: ChildProps): h.JSX.Element 
                 </span>
                 <span className="flex opacity-0 duration-100 group-hover:opacity-100">
                   <IconButton
-                    onClick={() => handleAssignVariable(propertyKey, propertyType, variable)}
+                    onClick={() => {
+                      handleAssignVariable(propertyKey, propertyType, variable, direction);
+                    }}
                   >
                     <VariableIcon />
                   </IconButton>
