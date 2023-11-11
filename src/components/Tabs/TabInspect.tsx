@@ -2,6 +2,8 @@ import { h } from 'preact';
 import BarChart from '../BarChart';
 import ValueDisplay from '../ValueDisplay';
 import { IVariable, IVariableCollection, PropertyTypeValues } from '../../types';
+import { Button } from '@create-figma-plugin/ui';
+import { handleInspectPage } from '../../utils/event-handlers';
 
 interface Props {
   pageData: PropertyTypeValues | null;
@@ -21,7 +23,25 @@ export default function TabInspect({
   };
 
   if (!pageData || isObjectEmpty(pageData)) {
-    return <div className="">null</div>;
+    return (
+      <div className="flex h-full w-full items-center justify-center pb-24">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-500 bg-opacity-20">
+            <span className="text-3xl">👀</span>
+          </div>
+          <h3 className="text-center text-lg">
+            Select something to inspect <br /> or inspect the full page
+          </h3>
+          <Button
+            onClick={() => {
+              handleInspectPage();
+            }}
+          >
+            Inspect Page
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

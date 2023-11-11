@@ -191,7 +191,7 @@ const inspectNode = (node: SceneNode, sizingData: PropertyTypeValues) => {
 
 let properties: PropertyTypeValues = {}
 
-const handleInspectPage = () => {
+const inspectPage = () => {
   properties = {};
   const nodeData = figma.currentPage.children;
 
@@ -199,9 +199,26 @@ const handleInspectPage = () => {
     inspectNode(node, properties);
   });
 
-  figma.notify(`Inspected: ${figma.currentPage.name}`);
+
+  figma.notify(`${nodeData.length === 0 ? 'there is no inspectable nodes' : `Inspected: ${figma.currentPage.name}`}`);
   emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
   emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
+  emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
+}
+
+const getVariables = () => {
+  emit<GetVariableCollectionsHandler>("GET_VARIABLE_COLLECTIONS", getVariableCollections())
+  emit<GetVariablesHandler>("GET_VARIABLES", getFloatVariables());
+}
+
+const inspectSelection = () => {
+  properties = {};
+  const nodeData = figma.currentPage.selection
+
+  nodeData.forEach((node) => {
+    inspectNode(node, properties);
+  });
+
   emit<UpdatePageDataHandler>("UPDATE_PAGE_DATA", properties);
 }
 
@@ -269,8 +286,9 @@ export default function (): void {
     figma.viewport.scrollAndZoomIntoView(nodesArray);
   });
 
-  figma.on('run', () => handleInspectPage())
-  figma.on('currentpagechange', () => handleInspectPage());
+  figma.on('run', () => { getVariables(); inspectPage(); })
+  figma.on('currentpagechange', () => inspectPage());
+  figma.on('selectionchange', () => inspectSelection())
 
   showUI({
     width: 420,
